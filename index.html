@@ -1,1 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KASIR OKTSHOP17</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Library PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
 
+    <header>
+        <button class="profile-btn" onclick="toggleSidebar()">👤</button>
+        <h1>KASIR OKTSHOP17</h1>
+    </header>
+
+    <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR ADMIN PANEL -->
+    <div id="sidebar-admin" class="sidebar">
+        <div class="sidebar-header">
+            <h2>Admin Panel</h2>
+            <button class="close-btn" onclick="toggleSidebar()">&times;</button>
+        </div>
+        
+        <div class="form-box" id="admin-form">
+            <h4 id="form-label">Tambah Menu Baru</h4>
+            <input type="hidden" id="edit-idx" value="-1">
+            <input type="text" id="in-nama" placeholder="Nama Menu">
+            <input type="number" id="in-harga" placeholder="Harga (Rp)">
+            <input type="number" id="in-stok" placeholder="Stok">
+            <input type="file" id="in-foto" accept="image/*">
+            <button class="btn-primary" id="btn-submit" onclick="simpanKeKatalog()">SIMPAN MENU</button>
+            <button id="btn-batal" onclick="resetForm()" style="display:none;" class="btn-cancel">Batal Edit</button>
+        </div>
+
+        <h4>Daftar Katalog (Max 20)</h4>
+        <div id="admin-katalog-list" class="admin-list">
+            <!-- Item dengan tombol (+) muncul di sini via app.js -->
+        </div>
+
+        <hr>
+        <button class="btn-report" onclick="cetakPDF()">📄 CETAK LAPORAN 30 HARI</button>
+        <label>Update QRIS:</label>
+        <input type="file" onchange="uploadQRIS(this)">
+        <button onclick="bersihkanRiwayat()" class="btn-clear">Hapus Semua Riwayat</button>
+    </div>
+
+    <!-- MAIN DISPLAY -->
+    <div class="container" id="main-display"></div>
+
+    <!-- NAVIGATION BAWAH -->
+    <div class="bottom-nav">
+        <div class="cart-info">
+            <small id="cart-count">0 Item</small><br>
+            <strong id="cart-total">Rp 0</strong>
+        </div>
+        <button class="btn-pay" onclick="bukaModalBayar()">BAYAR</button>
+    </div>
+
+    <!-- MODAL PEMBAYARAN -->
+    <div id="modal-bayar" class="modal">
+        <div class="modal-content">
+            <h3>Checkout</h3>
+            <div id="list-bayar"></div>
+            <div class="total-row">
+                <span>Total:</span>
+                <span id="total-harga-bayar">Rp 0</span>
+            </div>
+            <hr>
+            <label>Metode Pembayaran:</label>
+            <select id="select-metode" onchange="tampilQRIS()">
+                <option value="Cash">Cash (Tunai)</option>
+                <option value="Qris">QRIS</option>
+                <option value="ShopeeFood">ShopeeFood</option>
+            </select>
+            <div id="box-qris" style="display:none;">
+                <img id="view-qris" src="" alt="QRIS">
+            </div>
+            <button class="btn-primary" onclick="transaksiSelesai()">SELESAI</button>
+            <button class="btn-cancel" onclick="tutupModalBayar()">Kembali</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
