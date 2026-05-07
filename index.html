@@ -4,27 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KASIR OKTSHOP17</title>
+    <!-- Library untuk PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    
     <style>
         :root {
-            --primary: #27ae60; /* Hijau */
-            --secondary: #ffffff; /* Putih */
-            --text: #000000; /* Hitam */
+            --primary: #27ae60;
+            --secondary: #ffffff;
+            --text: #000000;
             --bg: #f8f8f8;
         }
 
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: var(--bg); color: var(--text); padding-bottom: 90px; overflow-x: hidden; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: var(--bg); color: var(--text); padding-bottom: 90px; }
         
         /* Header */
         header { background: var(--primary); color: white; padding: 15px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .profile-btn { position: absolute; left: 15px; cursor: pointer; background: none; border: none; color: white; font-size: 26px; }
-        header h1 { margin: 0; font-size: 1.3rem; font-weight: bold; }
+        header h1 { margin: 0; font-size: 1.2rem; letter-spacing: 1px; }
 
-        /* Sidebar Admin (Pojok Kiri) */
+        /* Sidebar Admin */
         .sidebar { position: fixed; top: 0; left: -320px; width: 300px; height: 100%; background: white; z-index: 2000; transition: 0.3s; box-shadow: 5px 0 15px rgba(0,0,0,0.2); padding: 20px; overflow-y: auto; box-sizing: border-box; }
         .sidebar.active { left: 0; }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .overlay.active { display: block; }
-        .close-sidebar { float: right; font-size: 28px; cursor: pointer; border: none; background: none; }
 
         /* Katalog Grid */
         .container { padding: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
@@ -33,26 +36,25 @@
         .card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; border: 1px solid #eee; }
         .card img { width: 100%; height: 100px; object-fit: cover; background: #f0f0f0; }
         .card-info { padding: 8px; flex-grow: 1; text-align: center; }
-        .card-info h3 { margin: 0; font-size: 0.9rem; height: 2.4em; overflow: hidden; }
+        .card-info h3 { margin: 0; font-size: 0.85rem; height: 2.5em; overflow: hidden; }
         .card-info p { margin: 5px 0; color: var(--primary); font-weight: bold; font-size: 0.9rem; }
-        .btn-add { background: var(--primary); color: white; border: none; padding: 8px; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
+        .btn-add { background: var(--primary); color: white; border: none; padding: 8px; cursor: pointer; font-size: 0.8rem; }
 
-        /* Pagination Button */
-        .load-more-container { text-align: center; padding: 20px 0; }
-        .btn-load-more { background: none; border: 2px solid var(--primary); color: var(--primary); border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; transition: 0.3s; }
-        .btn-load-more:hover { background: var(--primary); color: white; }
+        /* Pagination */
+        .load-more-container { text-align: center; padding: 15px 0; }
+        .btn-load-more { background: none; border: 2px solid var(--primary); color: var(--primary); border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; }
 
         /* Bottom Nav */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; border-top: 2px solid var(--primary); display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; box-sizing: border-box; z-index: 900; }
-        .cart-summary { display: flex; align-items: center; gap: 10px; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; border-top: 2px solid var(--primary); display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; box-sizing: border-box; }
         .btn-checkout { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-        /* Modal Checkout */
+        /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; }
         .modal-content { background: white; margin: 10% auto; width: 90%; max-width: 400px; border-radius: 15px; padding: 20px; box-sizing: border-box; }
         
         input, select, button.action-btn { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .riwayat-item { border-bottom: 1px solid #eee; padding: 10px 0; font-size: 0.8rem; }
+        .riwayat-item { border-bottom: 1px solid #eee; padding: 8px 0; font-size: 0.75rem; }
+        .btn-pdf { background: #e67e22; color: white; font-weight: bold; margin-top: 20px; border: none; }
     </style>
 </head>
 <body>
@@ -64,48 +66,46 @@
 
     <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
 
-    <!-- SIDEBAR ADMIN (KIRI) -->
+    <!-- SIDEBAR ADMIN -->
     <div id="sidebar-admin" class="sidebar">
-        <button class="close-sidebar" onclick="toggleSidebar()">&times;</button>
-        <h2 style="color: var(--primary); margin-bottom: 5px;">Profil Admin</h2>
-        <p style="font-size: 0.8rem; color: #666;">Maksimal 20 Menu Katalog</p>
+        <button style="float:right; border:none; background:none; font-size:20px;" onclick="toggleSidebar()">&times;</button>
+        <h2 style="color: var(--primary);">Menu Admin</h2>
         <hr>
         
-        <h3>Update Katalog</h3>
+        <h4>Update Katalog (Max 20)</h4>
         <input type="text" id="p-nama" placeholder="Nama Menu">
-        <input type="number" id="p-harga" placeholder="Harga (Rp)">
-        <input type="number" id="p-stok" placeholder="Jumlah Stok">
+        <input type="number" id="p-harga" placeholder="Harga">
+        <input type="number" id="p-stok" placeholder="Stok">
         <input type="file" id="p-foto" accept="image/*">
-        <button class="action-btn" onclick="tambahProduk()" style="background: var(--primary); color: white;">Simpan Ke Katalog</button>
+        <button class="action-btn" onclick="tambahProduk()" style="background: var(--primary); color: white;">Simpan Menu</button>
         
         <hr>
-        <h3>Update Foto QRIS</h3>
+        <h4>Update Foto QRIS</h4>
         <input type="file" id="qris-input" accept="image/*" onchange="updateQris(this)">
         
         <hr>
-        <h3>Riwayat Pesanan</h3>
-        <div id="riwayat-list" style="max-height: 200px; overflow-y: auto;">Belum ada data.</div>
-        <button onclick="hapusSemuaRiwayat()" style="background:#ff4757; color:white; border:none; padding:5px; border-radius:5px; margin-top:10px; font-size:0.7rem; cursor:pointer;">Hapus Riwayat</button>
+        <h4>Riwayat Pesanan</h4>
+        <div id="riwayat-list" style="max-height: 150px; overflow-y: auto; background: #f9f9f9; padding: 5px; border-radius: 5px;"></div>
+        
+        <hr>
+        <!-- MENU CETAK LAPORAN -->
+        <h4 style="margin-bottom:5px;">Laporan Keuangan</h4>
+        <button class="action-btn btn-pdf" onclick="cetakLaporanPDF()">📄 CETAK LAPORAN 30 HARI</button>
+        <button onclick="hapusSemuaRiwayat()" style="background:none; border:none; color:red; font-size:11px; margin-top:10px; cursor:pointer;">Hapus Semua Riwayat Transaksi</button>
     </div>
 
-    <!-- MAIN KATALOG -->
-    <div class="container" id="katalog-list">
-        <!-- Produk di-render di sini -->
-    </div>
+    <!-- KATALOG UTAMA -->
+    <div class="container" id="katalog-list"></div>
 
-    <div class="load-more-container" id="load-more-btn-area" style="display: none;">
+    <div class="load-more-container" id="load-more-area" style="display: none;">
         <button class="btn-load-more" onclick="showMore()">↓</button>
-        <p style="font-size: 0.8rem; color: #888;">Lihat Menu Lainnya</p>
     </div>
 
-    <!-- NAVIGATION BAWAH -->
+    <!-- BOTTOM NAV -->
     <div class="bottom-nav">
-        <div class="cart-summary">
-            <span style="font-size: 1.5rem;">🛒</span>
-            <div style="display:flex; flex-direction:column">
-                <small id="cart-count">0 Item</small>
-                <strong id="cart-total">Rp 0</strong>
-            </div>
+        <div>
+            <small id="cart-count">0 Item</small><br>
+            <strong id="cart-total">Rp 0</strong>
         </div>
         <button class="btn-checkout" onclick="openCheckout()">BAYAR</button>
     </div>
@@ -113,12 +113,10 @@
     <!-- MODAL PEMBAYARAN -->
     <div id="modal-checkout" class="modal">
         <div class="modal-content">
-            <h2 style="margin-top:0">Konfirmasi Bayar</h2>
-            <div id="checkout-items" style="max-height: 120px; overflow-y: auto; font-size: 0.9rem; margin-bottom: 10px;"></div>
-            <hr>
-            <h3 id="checkout-total-val" style="color: var(--primary); text-align:right">Rp 0</h3>
+            <h3>Konfirmasi Bayar</h3>
+            <div id="checkout-items" style="font-size:0.9rem;"></div>
+            <h3 id="checkout-total-val" style="color: var(--primary);">Rp 0</h3>
             
-            <label>Pilih Metode Pembayaran:</label>
             <select id="metode-bayar" onchange="toggleQrisView()">
                 <option value="Cash">Cash (Tunai)</option>
                 <option value="Qris">QRIS</option>
@@ -126,22 +124,20 @@
             </select>
             
             <div id="qris-display" style="display:none; text-align: center; margin-top: 10px;">
-                <img id="img-qris-view" src="" style="width: 100%; max-height: 250px; object-fit: contain; border: 1px solid #ddd; border-radius: 10px;">
-                <p style="font-size: 0.7rem; color: red;">*Silahkan scan barcode di atas</p>
+                <img id="img-qris-view" src="" style="width: 100%; border-radius: 10px;">
             </div>
 
-            <button class="action-btn" onclick="prosesSelesai()" style="background: var(--primary); color: white; margin-top: 15px;">SELESAI PEMBAYARAN</button>
-            <button class="action-btn" onclick="closeCheckout()" style="background: #eee; border: none;">Batal</button>
+            <button class="action-btn" onclick="prosesSelesai()" style="background: var(--primary); color: white;">SELESAI</button>
+            <button class="action-btn" onclick="closeCheckout()">Batal</button>
         </div>
     </div>
 
     <script>
-        // Data State
         let produk = JSON.parse(localStorage.getItem('okt_produk')) || [];
         let keranjang = [];
         let riwayat = JSON.parse(localStorage.getItem('okt_riwayat')) || [];
         let qrisImg = localStorage.getItem('okt_qris') || '';
-        let limitTampil = 9; // Tampilan awal 9 katalog
+        let limitTampil = 9;
 
         function init() {
             renderKatalog();
@@ -149,81 +145,55 @@
             document.getElementById('img-qris-view').src = qrisImg;
         }
 
-        // Toggle Sidebar
         function toggleSidebar() {
             document.getElementById('sidebar-admin').classList.toggle('active');
             document.getElementById('overlay').classList.toggle('active');
         }
 
-        // Fungsi Katalog & Pagination
         function renderKatalog() {
             const list = document.getElementById('katalog-list');
             list.innerHTML = '';
-            
-            // Slice data sesuai limit pagination
             const dataTampil = produk.slice(0, limitTampil);
-            
             dataTampil.forEach((p, index) => {
                 list.innerHTML += `
                     <div class="card">
-                        <img src="${p.foto || 'https://via.placeholder.com/150?text=Menu'}" alt="${p.nama}">
+                        <img src="${p.foto || 'https://via.placeholder.com/150'}" alt="${p.nama}">
                         <div class="card-info">
                             <h3>${p.nama}</h3>
                             <p>Rp ${parseInt(p.harga).toLocaleString()}</p>
-                            <small>Stok: ${p.stok}</small>
                         </div>
-                        <button class="btn-add" onclick="tambahKeKeranjang(${index})">🛒 +Keranjang</button>
+                        <button class="btn-add" onclick="tambahKeKeranjang(${index})">+ Keranjang</button>
                     </div>
                 `;
             });
-
-            // Tampilkan tombol panah jika produk > limit yang tampil
-            const btnArea = document.getElementById('load-more-btn-area');
-            if (produk.length > limitTampil) {
-                btnArea.style.display = 'block';
-            } else {
-                btnArea.style.display = 'none';
-            }
+            document.getElementById('load-more-area').style.display = (produk.length > limitTampil) ? 'block' : 'none';
         }
 
-        function showMore() {
-            limitTampil += 9; // Tambah 9 lagi setiap klik
-            renderKatalog();
-        }
+        function showMore() { limitTampil += 9; renderKatalog(); }
 
-        // CRUD Produk (Max 20)
         function tambahProduk() {
-            if (produk.length >= 20) {
-                return alert("Gagal! Maksimal katalog adalah 20 menu.");
-            }
-
+            if (produk.length >= 20) return alert("Maksimal 20 Menu!");
             const nama = document.getElementById('p-nama').value;
             const harga = document.getElementById('p-harga').value;
             const stok = document.getElementById('p-stok').value;
             const fotoFile = document.getElementById('p-foto').files[0];
 
-            if(!nama || !harga) return alert("Nama dan Harga wajib diisi!");
+            if(!nama || !harga) return alert("Isi data dengan lengkap!");
 
             const save = (img = '') => {
-                produk.push({ nama, harga, stok, foto: img });
+                produk.push({ nama, harga, stok, foto: img, timestamp: new Date().getTime() });
                 localStorage.setItem('okt_produk', JSON.stringify(produk));
                 renderKatalog();
-                alert("Menu berhasil ditambahkan ke katalog!");
-                document.getElementById('p-nama').value = '';
-                document.getElementById('p-harga').value = '';
-                document.getElementById('p-stok').value = '';
+                alert("Berhasil!");
             };
 
             if (fotoFile) {
                 const reader = new FileReader();
                 reader.onloadend = () => save(reader.result);
                 reader.readAsDataURL(fotoFile);
-            } else {
-                save();
-            }
+            } else { save(); }
         }
 
-        // Keranjang & Transaksi
         function tambahKeKeranjang(idx) {
             keranjang.push(produk[idx]);
             updateCartUI();
@@ -236,10 +206,10 @@
         }
 
         function openCheckout() {
-            if(keranjang.length === 0) return alert("Pilih menu terlebih dahulu!");
+            if(keranjang.length === 0) return alert("Keranjang kosong!");
             const total = keranjang.reduce((a, b) => a + parseInt(b.harga), 0);
             document.getElementById('checkout-total-val').innerText = `Total: Rp ${total.toLocaleString()}`;
-            document.getElementById('checkout-items').innerHTML = keranjang.map(i => `<div>• ${i.nama} (Rp ${parseInt(i.harga).toLocaleString()})</div>`).join('');
+            document.getElementById('checkout-items').innerHTML = keranjang.map(i => `<div>- ${i.nama}</div>`).join('');
             document.getElementById('modal-checkout').style.display = 'block';
         }
 
@@ -251,27 +221,35 @@
             
             riwayat.push({
                 tgl: new Date().toLocaleString('id-ID'),
+                timestamp: new Date().getTime(),
                 items: keranjang.map(i => i.nama).join(", "),
                 total: total,
                 metode: metode
             });
             
             localStorage.setItem('okt_riwayat', JSON.stringify(riwayat));
-            alert("Transaksi Sukses!");
+            alert("Sukses!");
             keranjang = [];
             updateCartUI();
             closeCheckout();
             renderRiwayat();
         }
 
-        // Admin Features
+        function renderRiwayat() {
+            const list = document.getElementById('riwayat-list');
+            list.innerHTML = riwayat.length ? riwayat.slice().reverse().map(h => `
+                <div class="riwayat-item">
+                    <strong>${h.tgl}</strong><br>Rp ${h.total.toLocaleString()} (${h.metode})
+                </div>
+            `).join('') : 'Belum ada transaksi';
+        }
+
         function updateQris(input) {
             const reader = new FileReader();
             reader.onloadend = () => {
                 qrisImg = reader.result;
                 localStorage.setItem('okt_qris', qrisImg);
                 document.getElementById('img-qris-view').src = qrisImg;
-                alert("Foto QRIS diperbarui.");
             };
             reader.readAsDataURL(input.files[0]);
         }
@@ -281,26 +259,61 @@
             document.getElementById('qris-display').style.display = (m === 'Qris') ? 'block' : 'none';
         }
 
-        function renderRiwayat() {
-            const list = document.getElementById('riwayat-list');
-            if(riwayat.length === 0) {
-                list.innerHTML = "Belum ada transaksi.";
-                return;
-            }
-            list.innerHTML = riwayat.slice().reverse().map(h => `
-                <div class="riwayat-item">
-                    <strong>${h.tgl}</strong> | Rp ${h.total.toLocaleString()} (${h.metode})<br>
-                    <span style="color:#666">${h.items}</span>
-                </div>
-            `).join('');
-        }
-
         function hapusSemuaRiwayat() {
-            if(confirm("Hapus semua data riwayat pesanan?")) {
+            if(confirm("Hapus semua riwayat?")) {
                 riwayat = [];
                 localStorage.setItem('okt_riwayat', JSON.stringify(riwayat));
                 renderRiwayat();
             }
+        }
+
+        // ================= FITUR CETAK PDF =================
+        function cetakLaporanPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Filter riwayat 30 hari terakhir
+            const satuBulanLalu = new Date().getTime() - (30 * 24 * 60 * 60 * 1000);
+            const dataLaporan = riwayat.filter(h => h.timestamp >= satuBulanLalu);
+
+            if(dataLaporan.length === 0) return alert("Tidak ada data transaksi dalam 30 hari terakhir.");
+
+            // Header PDF
+            doc.setFontSize(18);
+            doc.text("LAPORAN PENJUALAN OKTSHOP17", 105, 15, { align: 'center' });
+            doc.setFontSize(10);
+            doc.text("Periode: 30 Hari Terakhir", 105, 22, { align: 'center' });
+            doc.text("Tanggal Cetak: " + new Date().toLocaleString('id-ID'), 105, 28, { align: 'center' });
+
+            // Tabel Data
+            const rows = [];
+            let grandTotal = 0;
+            dataLaporan.forEach((h, index) => {
+                rows.push([
+                    index + 1,
+                    h.tgl,
+                    h.items,
+                    h.metode,
+                    "Rp " + h.total.toLocaleString()
+                ]);
+                grandTotal += h.total;
+            });
+
+            doc.autoTable({
+                startY: 35,
+                head: [['No', 'Tanggal', 'Menu', 'Metode', 'Total']],
+                body: rows,
+                headStyles: { fillStyle: 'f', fillColor: [39, 174, 96] }, // Warna Hijau
+            });
+
+            // Total Akhir
+            const finalY = doc.lastAutoTable.finalY + 10;
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "bold");
+            doc.text("GRAND TOTAL: Rp " + grandTotal.toLocaleString(), 140, finalY);
+
+            // Simpan PDF
+            doc.save(`Laporan_OktShop17_${new Date().toLocaleDateString()}.pdf`);
         }
 
         init();
