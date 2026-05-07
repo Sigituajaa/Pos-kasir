@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kasir Simpel Web</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 20px; background: #f4f4f4; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        .produk-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .produk-item:hover { background: #f9f9f9; }
+        .keranjang { margin-top: 20px; border-top: 2px solid #333; padding-top: 10px; }
+        .total { font-size: 1.5em; font-weight: bold; text-align: right; margin-top: 10px; color: #2ecc71; }
+        button { width: 100%; padding: 15px; background: #3498db; color: white; border: none; border-radius: 5px; font-size: 1em; cursor: pointer; margin-top: 10px; }
+        button:active { background: #2980b9; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Kasir Toko Saya</h2>
+    
+    <div id="daftar-produk">
+        <!-- Produk akan muncul di sini -->
+    </div>
+
+    <div class="keranjang">
+        <h3>Keranjang Belanja:</h3>
+        <div id="item-keranjang">Belum ada item.</div>
+        <div class="total" id="total-harga">Total: Rp 0</div>
+        <button onclick="bayar()">KONFIRMASI BAYAR</button>
+    </div>
+</div>
+
+<script>
+    const produk = [
+        { id: 1, nama: "Kopi Hitam", harga: 5000 },
+        { id: 2, nama: "Roti Bakar", harga: 12000 },
+        { id: 3, nama: "Air Mineral", harga: 3000 }
+    ];
+
+    let keranjang = [];
+
+    function tampilkanProduk() {
+        const div = document.getElementById('daftar-produk');
+        div.innerHTML = produk.map(p => `
+            <div class="produk-item" onclick="tambahKeKeranjang(${p.id})">
+                <span>${p.nama}</span>
+                <span>Rp ${p.harga.toLocaleString()}</span>
+            </div>
+        `).join('');
+    }
+
+    function tambahKeKeranjang(id) {
+        const item = produk.find(p => p.id === id);
+        keranjang.push(item);
+        updateUI();
+    }
+
+    function updateUI() {
+        const list = document.getElementById('item-keranjang');
+        const totalDiv = document.getElementById('total-harga');
+        
+        if (keranjang.length === 0) {
+            list.innerHTML = "Belum ada item.";
+        } else {
+            list.innerHTML = keranjang.map(i => `<div>- ${i.nama} (Rp ${i.harga.toLocaleString()})</div>`).join('');
+        }
+
+        const total = keranjang.reduce((sum, item) => sum + item.harga, 0);
+        totalDiv.innerHTML = `Total: Rp ${total.toLocaleString()}`;
+    }
+
+    function bayar() {
+        if (keranjang.length === 0) return alert("Keranjang masih kosong!");
+        alert("Pembayaran Berhasil! Terima kasih.");
+        keranjang = [];
+        updateUI();
+    }
+
+    tampilkanProduk();
+</script>
+
+</body>
+</html>
