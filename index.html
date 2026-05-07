@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KASIR OKTSHOP17</title>
-    <!-- Library untuk PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     
@@ -14,22 +13,20 @@
             --secondary: #ffffff;
             --text: #000000;
             --bg: #f8f8f8;
+            --danger: #e74c3c;
         }
 
         body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: var(--bg); color: var(--text); padding-bottom: 90px; }
         
-        /* Header */
         header { background: var(--primary); color: white; padding: 15px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .profile-btn { position: absolute; left: 15px; cursor: pointer; background: none; border: none; color: white; font-size: 26px; }
         header h1 { margin: 0; font-size: 1.2rem; letter-spacing: 1px; }
 
-        /* Sidebar Admin */
         .sidebar { position: fixed; top: 0; left: -320px; width: 300px; height: 100%; background: white; z-index: 2000; transition: 0.3s; box-shadow: 5px 0 15px rgba(0,0,0,0.2); padding: 20px; overflow-y: auto; box-sizing: border-box; }
         .sidebar.active { left: 0; }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .overlay.active { display: block; }
 
-        /* Katalog Grid */
         .container { padding: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         @media (max-width: 600px) { .container { grid-template-columns: repeat(2, 1fr); } }
         
@@ -40,19 +37,24 @@
         .card-info p { margin: 5px 0; color: var(--primary); font-weight: bold; font-size: 0.9rem; }
         .btn-add { background: var(--primary); color: white; border: none; padding: 8px; cursor: pointer; font-size: 0.8rem; }
 
-        /* Pagination */
         .load-more-container { text-align: center; padding: 15px 0; }
         .btn-load-more { background: none; border: 2px solid var(--primary); color: var(--primary); border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; }
 
-        /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; border-top: 2px solid var(--primary); display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; box-sizing: border-box; }
         .btn-checkout { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
-        /* Modal */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; }
-        .modal-content { background: white; margin: 10% auto; width: 90%; max-width: 400px; border-radius: 15px; padding: 20px; box-sizing: border-box; }
+        .modal-content { background: white; margin: 5% auto; width: 95%; max-width: 450px; border-radius: 15px; padding: 20px; box-sizing: border-box; position: relative; }
         
         input, select, button.action-btn { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        
+        /* List Item di Modal Checkout */
+        .checkout-item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .item-name { flex: 1; font-size: 0.9rem; }
+        .item-controls { display: flex; align-items: center; gap: 8px; }
+        .btn-minus { background: #f39c12; color: white; border: none; width: 30px; height: 30px; border-radius: 5px; cursor: pointer; }
+        .btn-del { background: var(--danger); color: white; border: none; width: 30px; height: 30px; border-radius: 5px; cursor: pointer; }
+        
         .riwayat-item { border-bottom: 1px solid #eee; padding: 8px 0; font-size: 0.75rem; }
         .btn-pdf { background: #e67e22; color: white; font-weight: bold; margin-top: 20px; border: none; }
     </style>
@@ -66,42 +68,32 @@
 
     <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
 
-    <!-- SIDEBAR ADMIN -->
     <div id="sidebar-admin" class="sidebar">
-        <button style="float:right; border:none; background:none; font-size:20px;" onclick="toggleSidebar()">&times;</button>
+        <button style="float:right; border:none; background:none; font-size:24px;" onclick="toggleSidebar()">&times;</button>
         <h2 style="color: var(--primary);">Menu Admin</h2>
         <hr>
-        
         <h4>Update Katalog (Max 20)</h4>
         <input type="text" id="p-nama" placeholder="Nama Menu">
         <input type="number" id="p-harga" placeholder="Harga">
         <input type="number" id="p-stok" placeholder="Stok">
         <input type="file" id="p-foto" accept="image/*">
         <button class="action-btn" onclick="tambahProduk()" style="background: var(--primary); color: white;">Simpan Menu</button>
-        
         <hr>
         <h4>Update Foto QRIS</h4>
         <input type="file" id="qris-input" accept="image/*" onchange="updateQris(this)">
-        
         <hr>
         <h4>Riwayat Pesanan</h4>
         <div id="riwayat-list" style="max-height: 150px; overflow-y: auto; background: #f9f9f9; padding: 5px; border-radius: 5px;"></div>
-        
         <hr>
-        <!-- MENU CETAK LAPORAN -->
-        <h4 style="margin-bottom:5px;">Laporan Keuangan</h4>
         <button class="action-btn btn-pdf" onclick="cetakLaporanPDF()">📄 CETAK LAPORAN 30 HARI</button>
-        <button onclick="hapusSemuaRiwayat()" style="background:none; border:none; color:red; font-size:11px; margin-top:10px; cursor:pointer;">Hapus Semua Riwayat Transaksi</button>
+        <button onclick="hapusSemuaRiwayat()" style="background:none; border:none; color:red; font-size:11px; margin-top:10px; cursor:pointer;">Hapus Semua Riwayat</button>
     </div>
 
-    <!-- KATALOG UTAMA -->
     <div class="container" id="katalog-list"></div>
-
     <div class="load-more-container" id="load-more-area" style="display: none;">
         <button class="btn-load-more" onclick="showMore()">↓</button>
     </div>
 
-    <!-- BOTTOM NAV -->
     <div class="bottom-nav">
         <div>
             <small id="cart-count">0 Item</small><br>
@@ -113,10 +105,18 @@
     <!-- MODAL PEMBAYARAN -->
     <div id="modal-checkout" class="modal">
         <div class="modal-content">
-            <h3>Konfirmasi Bayar</h3>
-            <div id="checkout-items" style="font-size:0.9rem;"></div>
-            <h3 id="checkout-total-val" style="color: var(--primary);">Rp 0</h3>
+            <h3 style="margin-top:0">Daftar Pesanan</h3>
+            <div id="checkout-items" style="max-height: 250px; overflow-y: auto; margin-bottom: 15px;">
+                <!-- Item Muncul Disini -->
+            </div>
             
+            <div style="display:flex; justify-content: space-between; align-items: center;">
+                <span>Total Bayar:</span>
+                <h3 id="checkout-total-val" style="color: var(--primary); margin:0;">Rp 0</h3>
+            </div>
+            
+            <hr>
+            <label style="font-size: 0.8rem;">Metode Pembayaran:</label>
             <select id="metode-bayar" onchange="toggleQrisView()">
                 <option value="Cash">Cash (Tunai)</option>
                 <option value="Qris">QRIS</option>
@@ -124,17 +124,17 @@
             </select>
             
             <div id="qris-display" style="display:none; text-align: center; margin-top: 10px;">
-                <img id="img-qris-view" src="" style="width: 100%; border-radius: 10px;">
+                <img id="img-qris-view" src="" style="width: 100%; border-radius: 10px; border: 1px solid #ddd;">
             </div>
 
-            <button class="action-btn" onclick="prosesSelesai()" style="background: var(--primary); color: white;">SELESAI</button>
-            <button class="action-btn" onclick="closeCheckout()">Batal</button>
+            <button class="action-btn" onclick="prosesSelesai()" style="background: var(--primary); color: white; margin-top: 15px;">PROSES SELESAI</button>
+            <button class="action-btn" onclick="closeCheckout()" style="background: #eee; border: none;">Batal</button>
         </div>
     </div>
 
     <script>
         let produk = JSON.parse(localStorage.getItem('okt_produk')) || [];
-        let keranjang = [];
+        let keranjang = []; 
         let riwayat = JSON.parse(localStorage.getItem('okt_riwayat')) || [];
         let qrisImg = localStorage.getItem('okt_qris') || '';
         let limitTampil = 9;
@@ -162,7 +162,7 @@
                             <h3>${p.nama}</h3>
                             <p>Rp ${parseInt(p.harga).toLocaleString()}</p>
                         </div>
-                        <button class="btn-add" onclick="tambahKeKeranjang(${index})">+ Keranjang</button>
+                        <button class="btn-add" onclick="tambahKeKeranjang('${p.nama}', ${p.harga})">+ Keranjang</button>
                     </div>
                 `;
             });
@@ -177,16 +177,13 @@
             const harga = document.getElementById('p-harga').value;
             const stok = document.getElementById('p-stok').value;
             const fotoFile = document.getElementById('p-foto').files[0];
-
-            if(!nama || !harga) return alert("Isi data dengan lengkap!");
-
+            if(!nama || !harga) return alert("Lengkapi data!");
             const save = (img = '') => {
-                produk.push({ nama, harga, stok, foto: img, timestamp: new Date().getTime() });
+                produk.push({ nama, harga, stok, foto: img });
                 localStorage.setItem('okt_produk', JSON.stringify(produk));
                 renderKatalog();
-                alert("Berhasil!");
+                alert("Menu Disimpan!");
             };
-
             if (fotoFile) {
                 const reader = new FileReader();
                 reader.onloadend = () => save(reader.result);
@@ -194,22 +191,65 @@
             } else { save(); }
         }
 
-        function tambahKeKeranjang(idx) {
-            keranjang.push(produk[idx]);
+        // LOGIKA KERANJANG BARU
+        function tambahKeKeranjang(nama, harga) {
+            const itemAda = keranjang.find(item => item.nama === nama);
+            if (itemAda) {
+                itemAda.qty += 1;
+            } else {
+                keranjang.push({ nama, harga, qty: 1 });
+            }
             updateCartUI();
         }
 
+        function kurangiItem(nama) {
+            const index = keranjang.findIndex(item => item.nama === nama);
+            if (index !== -1) {
+                keranjang[index].qty -= 1;
+                if (keranjang[index].qty <= 0) {
+                    keranjang.splice(index, 1);
+                }
+            }
+            updateCartUI();
+            openCheckout(); // Refresh tampilan modal
+        }
+
+        function hapusItem(nama) {
+            keranjang = keranjang.filter(item => item.nama !== nama);
+            updateCartUI();
+            if (keranjang.length === 0) closeCheckout();
+            else openCheckout();
+        }
+
         function updateCartUI() {
-            const total = keranjang.reduce((a, b) => a + parseInt(b.harga), 0);
-            document.getElementById('cart-count').innerText = `${keranjang.length} Item`;
-            document.getElementById('cart-total').innerText = `Rp ${total.toLocaleString()}`;
+            const totalItems = keranjang.reduce((a, b) => a + b.qty, 0);
+            const totalPrice = keranjang.reduce((a, b) => a + (b.harga * b.qty), 0);
+            document.getElementById('cart-count').innerText = `${totalItems} Item`;
+            document.getElementById('cart-total').innerText = `Rp ${totalPrice.toLocaleString()}`;
         }
 
         function openCheckout() {
             if(keranjang.length === 0) return alert("Keranjang kosong!");
-            const total = keranjang.reduce((a, b) => a + parseInt(b.harga), 0);
-            document.getElementById('checkout-total-val').innerText = `Total: Rp ${total.toLocaleString()}`;
-            document.getElementById('checkout-items').innerHTML = keranjang.map(i => `<div>- ${i.nama}</div>`).join('');
+            const listArea = document.getElementById('checkout-items');
+            listArea.innerHTML = '';
+            
+            keranjang.forEach(item => {
+                listArea.innerHTML += `
+                    <div class="checkout-item-row">
+                        <div class="item-name">
+                            <strong>${item.nama}</strong><br>
+                            <small>@Rp ${parseInt(item.harga).toLocaleString()} x ${item.qty}</small>
+                        </div>
+                        <div class="item-controls">
+                            <button class="btn-minus" onclick="kurangiItem('${item.nama}')">-</button>
+                            <button class="btn-del" onclick="hapusItem('${item.nama}')">🗑</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            const totalPrice = keranjang.reduce((a, b) => a + (b.harga * b.qty), 0);
+            document.getElementById('checkout-total-val').innerText = `Rp ${totalPrice.toLocaleString()}`;
             document.getElementById('modal-checkout').style.display = 'block';
         }
 
@@ -217,18 +257,19 @@
 
         function prosesSelesai() {
             const metode = document.getElementById('metode-bayar').value;
-            const total = keranjang.reduce((a, b) => a + parseInt(b.harga), 0);
+            const totalPrice = keranjang.reduce((a, b) => a + (b.harga * b.qty), 0);
+            const daftarMenu = keranjang.map(i => `${i.nama} (${i.qty})`).join(", ");
             
             riwayat.push({
                 tgl: new Date().toLocaleString('id-ID'),
                 timestamp: new Date().getTime(),
-                items: keranjang.map(i => i.nama).join(", "),
-                total: total,
+                items: daftarMenu,
+                total: totalPrice,
                 metode: metode
             });
             
             localStorage.setItem('okt_riwayat', JSON.stringify(riwayat));
-            alert("Sukses!");
+            alert("Transaksi Berhasil!");
             keranjang = [];
             updateCartUI();
             closeCheckout();
@@ -241,7 +282,7 @@
                 <div class="riwayat-item">
                     <strong>${h.tgl}</strong><br>Rp ${h.total.toLocaleString()} (${h.metode})
                 </div>
-            `).join('') : 'Belum ada transaksi';
+            `).join('') : 'Kosong';
         }
 
         function updateQris(input) {
@@ -260,60 +301,19 @@
         }
 
         function hapusSemuaRiwayat() {
-            if(confirm("Hapus semua riwayat?")) {
-                riwayat = [];
-                localStorage.setItem('okt_riwayat', JSON.stringify(riwayat));
-                renderRiwayat();
-            }
+            if(confirm("Hapus riwayat?")) { riwayat = []; localStorage.setItem('okt_riwayat', JSON.stringify(riwayat)); renderRiwayat(); }
         }
 
-        // ================= FITUR CETAK PDF =================
         function cetakLaporanPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            
-            // Filter riwayat 30 hari terakhir
             const satuBulanLalu = new Date().getTime() - (30 * 24 * 60 * 60 * 1000);
             const dataLaporan = riwayat.filter(h => h.timestamp >= satuBulanLalu);
-
-            if(dataLaporan.length === 0) return alert("Tidak ada data transaksi dalam 30 hari terakhir.");
-
-            // Header PDF
-            doc.setFontSize(18);
+            if(dataLaporan.length === 0) return alert("Data kosong");
             doc.text("LAPORAN PENJUALAN OKTSHOP17", 105, 15, { align: 'center' });
-            doc.setFontSize(10);
-            doc.text("Periode: 30 Hari Terakhir", 105, 22, { align: 'center' });
-            doc.text("Tanggal Cetak: " + new Date().toLocaleString('id-ID'), 105, 28, { align: 'center' });
-
-            // Tabel Data
-            const rows = [];
-            let grandTotal = 0;
-            dataLaporan.forEach((h, index) => {
-                rows.push([
-                    index + 1,
-                    h.tgl,
-                    h.items,
-                    h.metode,
-                    "Rp " + h.total.toLocaleString()
-                ]);
-                grandTotal += h.total;
-            });
-
-            doc.autoTable({
-                startY: 35,
-                head: [['No', 'Tanggal', 'Menu', 'Metode', 'Total']],
-                body: rows,
-                headStyles: { fillStyle: 'f', fillColor: [39, 174, 96] }, // Warna Hijau
-            });
-
-            // Total Akhir
-            const finalY = doc.lastAutoTable.finalY + 10;
-            doc.setFontSize(12);
-            doc.setFont("helvetica", "bold");
-            doc.text("GRAND TOTAL: Rp " + grandTotal.toLocaleString(), 140, finalY);
-
-            // Simpan PDF
-            doc.save(`Laporan_OktShop17_${new Date().toLocaleDateString()}.pdf`);
+            const rows = dataLaporan.map((h, i) => [i+1, h.tgl, h.items, h.metode, "Rp " + h.total.toLocaleString()]);
+            doc.autoTable({ startY: 25, head: [['No', 'Tanggal', 'Menu', 'Metode', 'Total']], body: rows });
+            doc.save("Laporan.pdf");
         }
 
         init();
