@@ -14,6 +14,7 @@
             --text: #000000;
             --bg: #f8f8f8;
             --danger: #e74c3c;
+            --warning: #f39c12;
         }
 
         body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: var(--bg); color: var(--text); padding-bottom: 90px; }
@@ -22,41 +23,42 @@
         .profile-btn { position: absolute; left: 15px; cursor: pointer; background: none; border: none; color: white; font-size: 26px; }
         header h1 { margin: 0; font-size: 1.2rem; letter-spacing: 1px; }
 
-        .sidebar { position: fixed; top: 0; left: -320px; width: 300px; height: 100%; background: white; z-index: 2000; transition: 0.3s; box-shadow: 5px 0 15px rgba(0,0,0,0.2); padding: 20px; overflow-y: auto; box-sizing: border-box; }
+        /* Sidebar Admin */
+        .sidebar { position: fixed; top: 0; left: -350px; width: 320px; height: 100%; background: white; z-index: 2000; transition: 0.3s; box-shadow: 5px 0 15px rgba(0,0,0,0.2); padding: 20px; overflow-y: auto; box-sizing: border-box; }
         .sidebar.active { left: 0; }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .overlay.active { display: block; }
 
+        /* Form Styling */
+        input, select, button.action-btn { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+        h4 { margin: 15px 0 5px 0; border-bottom: 2px solid var(--primary); display: inline-block; }
+
+        /* Katalog Utama */
         .container { padding: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         @media (max-width: 600px) { .container { grid-template-columns: repeat(2, 1fr); } }
         
-        .card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; border: 1px solid #eee; }
+        .card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; border: 1px solid #eee; position: relative;}
         .card img { width: 100%; height: 100px; object-fit: cover; background: #f0f0f0; }
         .card-info { padding: 8px; flex-grow: 1; text-align: center; }
         .card-info h3 { margin: 0; font-size: 0.85rem; height: 2.5em; overflow: hidden; }
         .card-info p { margin: 5px 0; color: var(--primary); font-weight: bold; font-size: 0.9rem; }
-        .btn-add { background: var(--primary); color: white; border: none; padding: 8px; cursor: pointer; font-size: 0.8rem; }
+        .btn-add { background: var(--primary); color: white; border: none; padding: 10px; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
 
-        .load-more-container { text-align: center; padding: 15px 0; }
-        .btn-load-more { background: none; border: 2px solid var(--primary); color: var(--primary); border-radius: 50%; width: 40px; height: 40px; font-size: 20px; cursor: pointer; }
+        /* Daftar Katalog di Admin (Kecil) */
+        .admin-katalog-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #eee; font-size: 13px; }
+        .admin-katalog-item img { width: 40px; height: 40px; border-radius: 5px; object-fit: cover; }
+        .admin-actions { display: flex; gap: 5px; margin-left: auto; }
+        .btn-small-edit { background: var(--warning); color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; }
+        .btn-small-del { background: var(--danger); color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; }
 
+        /* Footer Nav */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; border-top: 2px solid var(--primary); display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; box-sizing: border-box; }
         .btn-checkout { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; }
-        .modal-content { background: white; margin: 5% auto; width: 95%; max-width: 450px; border-radius: 15px; padding: 20px; box-sizing: border-box; position: relative; }
+        .modal-content { background: white; margin: 5% auto; width: 95%; max-width: 450px; border-radius: 15px; padding: 20px; box-sizing: border-box; }
         
-        input, select, button.action-btn { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        
-        /* List Item di Modal Checkout */
         .checkout-item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .item-name { flex: 1; font-size: 0.9rem; }
-        .item-controls { display: flex; align-items: center; gap: 8px; }
-        .btn-minus { background: #f39c12; color: white; border: none; width: 30px; height: 30px; border-radius: 5px; cursor: pointer; }
-        .btn-del { background: var(--danger); color: white; border: none; width: 30px; height: 30px; border-radius: 5px; cursor: pointer; }
-        
-        .riwayat-item { border-bottom: 1px solid #eee; padding: 8px 0; font-size: 0.75rem; }
-        .btn-pdf { background: #e67e22; color: white; font-weight: bold; margin-top: 20px; border: none; }
     </style>
 </head>
 <body>
@@ -68,32 +70,42 @@
 
     <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
 
+    <!-- SIDEBAR ADMIN PANEL -->
     <div id="sidebar-admin" class="sidebar">
-        <button style="float:right; border:none; background:none; font-size:24px;" onclick="toggleSidebar()">&times;</button>
-        <h2 style="color: var(--primary);">Menu Admin</h2>
+        <button style="float:right; border:none; background:none; font-size:28px;" onclick="toggleSidebar()">&times;</button>
+        <h2 style="color: var(--primary); margin-top:0;">Admin Panel</h2>
+        
+        <!-- Tab 1: Tambah Menu -->
+        <div id="form-katalog">
+            <h4>Tambah/Edit Menu</h4>
+            <input type="hidden" id="p-index">
+            <input type="text" id="p-nama" placeholder="Nama Menu (Contoh: Kopi)">
+            <input type="number" id="p-harga" placeholder="Harga (Rp)">
+            <input type="number" id="p-stok" placeholder="Jumlah Stok">
+            <input type="file" id="p-foto" accept="image/*">
+            <button class="action-btn" id="btn-simpan-menu" onclick="simpanProduk()" style="background: var(--primary); color: white;">SIMPAN MENU</button>
+            <button class="action-btn" id="btn-batal-edit" onclick="resetFormProduk()" style="background: #ccc; display:none;">BATAL EDIT</button>
+        </div>
+
         <hr>
-        <h4>Update Katalog (Max 20)</h4>
-        <input type="text" id="p-nama" placeholder="Nama Menu">
-        <input type="number" id="p-harga" placeholder="Harga">
-        <input type="number" id="p-stok" placeholder="Stok">
-        <input type="file" id="p-foto" accept="image/*">
-        <button class="action-btn" onclick="tambahProduk()" style="background: var(--primary); color: white;">Simpan Menu</button>
+
+        <!-- Tab 2: Daftar Katalog -->
+        <h4>Daftar Katalog</h4>
+        <div id="admin-daftar-katalog" style="max-height: 250px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; background: #fafafa;">
+            <!-- Muncul disini daftar edit/hapus -->
+        </div>
+
         <hr>
-        <h4>Update Foto QRIS</h4>
+        <h4>QRIS & Laporan</h4>
         <input type="file" id="qris-input" accept="image/*" onchange="updateQris(this)">
-        <hr>
-        <h4>Riwayat Pesanan</h4>
-        <div id="riwayat-list" style="max-height: 150px; overflow-y: auto; background: #f9f9f9; padding: 5px; border-radius: 5px;"></div>
-        <hr>
-        <button class="action-btn btn-pdf" onclick="cetakLaporanPDF()">📄 CETAK LAPORAN 30 HARI</button>
-        <button onclick="hapusSemuaRiwayat()" style="background:none; border:none; color:red; font-size:11px; margin-top:10px; cursor:pointer;">Hapus Semua Riwayat</button>
+        <button class="action-btn" onclick="cetakLaporanPDF()" style="background: #e67e22; color: white;">📄 CETAK LAPORAN 30 HARI</button>
+        <button onclick="hapusSemuaRiwayat()" style="background:none; border:none; color:red; font-size:11px; margin-top:5px; cursor:pointer;">Hapus Semua Riwayat</button>
     </div>
 
+    <!-- KATALOG UTAMA -->
     <div class="container" id="katalog-list"></div>
-    <div class="load-more-container" id="load-more-area" style="display: none;">
-        <button class="btn-load-more" onclick="showMore()">↓</button>
-    </div>
 
+    <!-- NAVIGATION BAWAH -->
     <div class="bottom-nav">
         <div>
             <small id="cart-count">0 Item</small><br>
@@ -106,42 +118,35 @@
     <div id="modal-checkout" class="modal">
         <div class="modal-content">
             <h3 style="margin-top:0">Daftar Pesanan</h3>
-            <div id="checkout-items" style="max-height: 250px; overflow-y: auto; margin-bottom: 15px;">
-                <!-- Item Muncul Disini -->
+            <div id="checkout-items" style="max-height: 200px; overflow-y: auto;"></div>
+            <div style="display:flex; justify-content: space-between; margin-top:15px;">
+                <strong>Total:</strong>
+                <strong id="checkout-total-val" style="color: var(--primary);">Rp 0</strong>
             </div>
-            
-            <div style="display:flex; justify-content: space-between; align-items: center;">
-                <span>Total Bayar:</span>
-                <h3 id="checkout-total-val" style="color: var(--primary); margin:0;">Rp 0</h3>
-            </div>
-            
             <hr>
-            <label style="font-size: 0.8rem;">Metode Pembayaran:</label>
+            <label>Metode Pembayaran:</label>
             <select id="metode-bayar" onchange="toggleQrisView()">
                 <option value="Cash">Cash (Tunai)</option>
                 <option value="Qris">QRIS</option>
                 <option value="ShopeeFood">ShopeeFood</option>
             </select>
-            
             <div id="qris-display" style="display:none; text-align: center; margin-top: 10px;">
-                <img id="img-qris-view" src="" style="width: 100%; border-radius: 10px; border: 1px solid #ddd;">
+                <img id="img-qris-view" src="" style="width: 100%; border: 1px solid #ddd; border-radius: 10px;">
             </div>
-
             <button class="action-btn" onclick="prosesSelesai()" style="background: var(--primary); color: white; margin-top: 15px;">PROSES SELESAI</button>
-            <button class="action-btn" onclick="closeCheckout()" style="background: #eee; border: none;">Batal</button>
+            <button class="action-btn" onclick="closeCheckout()" style="background: #eee;">Batal</button>
         </div>
     </div>
 
     <script>
         let produk = JSON.parse(localStorage.getItem('okt_produk')) || [];
-        let keranjang = []; 
+        let keranjang = [];
         let riwayat = JSON.parse(localStorage.getItem('okt_riwayat')) || [];
         let qrisImg = localStorage.getItem('okt_qris') || '';
-        let limitTampil = 9;
 
         function init() {
             renderKatalog();
-            renderRiwayat();
+            renderAdminKatalog();
             document.getElementById('img-qris-view').src = qrisImg;
         }
 
@@ -150,145 +155,193 @@
             document.getElementById('overlay').classList.toggle('active');
         }
 
-        function renderKatalog() {
-            const list = document.getElementById('katalog-list');
-            list.innerHTML = '';
-            const dataTampil = produk.slice(0, limitTampil);
-            dataTampil.forEach((p, index) => {
-                list.innerHTML += `
-                    <div class="card">
-                        <img src="${p.foto || 'https://via.placeholder.com/150'}" alt="${p.nama}">
-                        <div class="card-info">
-                            <h3>${p.nama}</h3>
-                            <p>Rp ${parseInt(p.harga).toLocaleString()}</p>
-                        </div>
-                        <button class="btn-add" onclick="tambahKeKeranjang('${p.nama}', ${p.harga})">+ Keranjang</button>
-                    </div>
-                `;
-            });
-            document.getElementById('load-more-area').style.display = (produk.length > limitTampil) ? 'block' : 'none';
-        }
-
-        function showMore() { limitTampil += 9; renderKatalog(); }
-
-        function tambahProduk() {
-            if (produk.length >= 20) return alert("Maksimal 20 Menu!");
+        // --- FUNGSI PRODUK (TAMBAH / EDIT / HAPUS) ---
+        function simpanProduk() {
+            const index = document.getElementById('p-index').value;
             const nama = document.getElementById('p-nama').value;
             const harga = document.getElementById('p-harga').value;
             const stok = document.getElementById('p-stok').value;
-            const fotoFile = document.getElementById('p-foto').files[0];
-            if(!nama || !harga) return alert("Lengkapi data!");
-            const save = (img = '') => {
-                produk.push({ nama, harga, stok, foto: img });
+            const fotoInput = document.getElementById('p-foto');
+
+            if (!nama || !harga) return alert("Nama dan Harga harus diisi!");
+
+            const saveProcess = (imgData = '') => {
+                const dataBaru = { 
+                    nama, 
+                    harga: parseInt(harga), 
+                    stok: parseInt(stok) || 0, 
+                    foto: imgData || (index !== "" ? produk[index].foto : "") 
+                };
+
+                if (index !== "") {
+                    produk[index] = dataBaru; // Update
+                    alert("Menu Berhasil Diupdate!");
+                } else {
+                    if (produk.length >= 20) return alert("Maksimal 20 Menu!");
+                    produk.push(dataBaru); // Tambah Baru
+                    alert("Menu Berhasil Disimpan!");
+                }
+
+                localStorage.setItem('okt_produk', JSON.stringify(produk));
+                resetFormProduk();
+                renderKatalog();
+                renderAdminKatalog();
+            };
+
+            if (fotoInput.files && fotoInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => saveProcess(e.target.result);
+                reader.readAsDataURL(fotoInput.files[0]);
+            } else {
+                saveProcess();
+            }
+        }
+
+        function editProduk(index) {
+            const p = produk[index];
+            document.getElementById('p-index').value = index;
+            document.getElementById('p-nama').value = p.nama;
+            document.getElementById('p-harga').value = p.harga;
+            document.getElementById('p-stok').value = p.stok;
+            
+            document.getElementById('btn-simpan-menu').innerText = "UPDATE MENU";
+            document.getElementById('btn-simpan-menu').style.background = "var(--warning)";
+            document.getElementById('btn-batal-edit').style.display = "block";
+            
+            // Scroll ke atas form
+            document.getElementById('form-katalog').scrollIntoView();
+        }
+
+        function hapusProduk(index) {
+            if (confirm(`Hapus ${produk[index].nama} dari katalog?`)) {
+                produk.splice(index, 1);
                 localStorage.setItem('okt_produk', JSON.stringify(produk));
                 renderKatalog();
-                alert("Menu Disimpan!");
-            };
-            if (fotoFile) {
-                const reader = new FileReader();
-                reader.onloadend = () => save(reader.result);
-                reader.readAsDataURL(fotoFile);
-            } else { save(); }
-        }
-
-        // LOGIKA KERANJANG BARU
-        function tambahKeKeranjang(nama, harga) {
-            const itemAda = keranjang.find(item => item.nama === nama);
-            if (itemAda) {
-                itemAda.qty += 1;
-            } else {
-                keranjang.push({ nama, harga, qty: 1 });
+                renderAdminKatalog();
             }
-            updateCartUI();
         }
 
-        function kurangiItem(nama) {
-            const index = keranjang.findIndex(item => item.nama === nama);
-            if (index !== -1) {
-                keranjang[index].qty -= 1;
-                if (keranjang[index].qty <= 0) {
-                    keranjang.splice(index, 1);
-                }
-            }
-            updateCartUI();
-            openCheckout(); // Refresh tampilan modal
+        function resetFormProduk() {
+            document.getElementById('p-index').value = "";
+            document.getElementById('p-nama').value = "";
+            document.getElementById('p-harga').value = "";
+            document.getElementById('p-stok').value = "";
+            document.getElementById('p-foto').value = "";
+            document.getElementById('btn-simpan-menu').innerText = "SIMPAN MENU";
+            document.getElementById('btn-simpan-menu').style.background = "var(--primary)";
+            document.getElementById('btn-batal-edit').style.display = "none";
         }
 
-        function hapusItem(nama) {
-            keranjang = keranjang.filter(item => item.nama !== nama);
-            updateCartUI();
-            if (keranjang.length === 0) closeCheckout();
-            else openCheckout();
-        }
-
-        function updateCartUI() {
-            const totalItems = keranjang.reduce((a, b) => a + b.qty, 0);
-            const totalPrice = keranjang.reduce((a, b) => a + (b.harga * b.qty), 0);
-            document.getElementById('cart-count').innerText = `${totalItems} Item`;
-            document.getElementById('cart-total').innerText = `Rp ${totalPrice.toLocaleString()}`;
-        }
-
-        function openCheckout() {
-            if(keranjang.length === 0) return alert("Keranjang kosong!");
-            const listArea = document.getElementById('checkout-items');
-            listArea.innerHTML = '';
-            
-            keranjang.forEach(item => {
-                listArea.innerHTML += `
-                    <div class="checkout-item-row">
-                        <div class="item-name">
-                            <strong>${item.nama}</strong><br>
-                            <small>@Rp ${parseInt(item.harga).toLocaleString()} x ${item.qty}</small>
+        // --- RENDERING ---
+        function renderKatalog() {
+            const list = document.getElementById('katalog-list');
+            list.innerHTML = produk.length ? '' : '<p style="grid-column:1/4; text-align:center; padding:50px;">Katalog Kosong.<br>Buka Admin Panel untuk isi menu.</p>';
+            produk.forEach((p, index) => {
+                list.innerHTML += `
+                    <div class="card">
+                        <img src="${p.foto || 'https://via.placeholder.com/150?text=No+Image'}" alt="${p.nama}">
+                        <div class="card-info">
+                            <h3>${p.nama}</h3>
+                            <p>Rp ${p.harga.toLocaleString()}</p>
+                            <small style="color:#888">Stok: ${p.stok}</small>
                         </div>
-                        <div class="item-controls">
-                            <button class="btn-minus" onclick="kurangiItem('${item.nama}')">-</button>
-                            <button class="btn-del" onclick="hapusItem('${item.nama}')">🗑</button>
+                        <button class="btn-add" onclick="tambahKeKeranjang(${index})">+ Keranjang</button>
+                    </div>
+                `;
+            });
+        }
+
+        function renderAdminKatalog() {
+            const list = document.getElementById('admin-daftar-katalog');
+            list.innerHTML = produk.length ? '' : '<p style="padding:10px; text-align:center;">Belum ada menu.</p>';
+            produk.forEach((p, index) => {
+                list.innerHTML += `
+                    <div class="admin-katalog-item">
+                        <img src="${p.foto || 'https://via.placeholder.com/150?text=X'}" alt="img">
+                        <div style="flex:1">
+                            <strong>${p.nama}</strong><br>
+                            <small>Rp ${p.harga.toLocaleString()} | S:${p.stok}</small>
+                        </div>
+                        <div class="admin-actions">
+                            <button class="btn-small-edit" onclick="editProduk(${index})">✎</button>
+                            <button class="btn-small-del" onclick="hapusProduk(${index})">🗑</button>
                         </div>
                     </div>
                 `;
             });
+        }
 
-            const totalPrice = keranjang.reduce((a, b) => a + (b.harga * b.qty), 0);
-            document.getElementById('checkout-total-val').innerText = `Rp ${totalPrice.toLocaleString()}`;
+        // --- KERANJANG & TRANSAKSI ---
+        function tambahKeKeranjang(idx) {
+            const p = produk[idx];
+            const itemAda = keranjang.find(item => item.nama === p.nama);
+            if (itemAda) itemAda.qty += 1;
+            else keranjang.push({ nama: p.nama, harga: p.harga, qty: 1 });
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const totalQty = keranjang.reduce((a, b) => a + b.qty, 0);
+            const totalHarga = keranjang.reduce((a, b) => a + (b.harga * b.qty), 0);
+            document.getElementById('cart-count').innerText = `${totalQty} Item`;
+            document.getElementById('cart-total').innerText = `Rp ${totalHarga.toLocaleString()}`;
+        }
+
+        function openCheckout() {
+            if (!keranjang.length) return alert("Keranjang Kosong!");
+            const area = document.getElementById('checkout-items');
+            area.innerHTML = '';
+            keranjang.forEach((item, i) => {
+                area.innerHTML += `
+                    <div class="checkout-item-row">
+                        <div><strong>${item.nama}</strong><br><small>Rp ${item.harga.toLocaleString()} x ${item.qty}</small></div>
+                        <div>
+                            <button onclick="ubahQty('${item.nama}', -1)" style="padding:5px 10px;">-</button>
+                            <button onclick="ubahQty('${item.nama}', 1)" style="padding:5px 10px;">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+            const total = keranjang.reduce((a, b) => a + (b.harga * b.qty), 0);
+            document.getElementById('checkout-total-val').innerText = `Rp ${total.toLocaleString()}`;
             document.getElementById('modal-checkout').style.display = 'block';
+        }
+
+        function ubahQty(nama, delta) {
+            const item = keranjang.find(i => i.nama === nama);
+            if (item) {
+                item.qty += delta;
+                if (item.qty <= 0) keranjang = keranjang.filter(i => i.nama !== nama);
+            }
+            if (!keranjang.length) closeCheckout();
+            else openCheckout();
+            updateCartUI();
         }
 
         function closeCheckout() { document.getElementById('modal-checkout').style.display = 'none'; }
 
         function prosesSelesai() {
             const metode = document.getElementById('metode-bayar').value;
-            const totalPrice = keranjang.reduce((a, b) => a + (b.harga * b.qty), 0);
-            const daftarMenu = keranjang.map(i => `${i.nama} (${i.qty})`).join(", ");
-            
+            const total = keranjang.reduce((a, b) => a + (b.harga * b.qty), 0);
             riwayat.push({
                 tgl: new Date().toLocaleString('id-ID'),
                 timestamp: new Date().getTime(),
-                items: daftarMenu,
-                total: totalPrice,
-                metode: metode
+                items: keranjang.map(i => `${i.nama}(${i.qty})`).join(", "),
+                total,
+                metode
             });
-            
             localStorage.setItem('okt_riwayat', JSON.stringify(riwayat));
             alert("Transaksi Berhasil!");
             keranjang = [];
             updateCartUI();
             closeCheckout();
-            renderRiwayat();
         }
 
-        function renderRiwayat() {
-            const list = document.getElementById('riwayat-list');
-            list.innerHTML = riwayat.length ? riwayat.slice().reverse().map(h => `
-                <div class="riwayat-item">
-                    <strong>${h.tgl}</strong><br>Rp ${h.total.toLocaleString()} (${h.metode})
-                </div>
-            `).join('') : 'Kosong';
-        }
-
+        // --- LAINNYA ---
         function updateQris(input) {
             const reader = new FileReader();
-            reader.onloadend = () => {
-                qrisImg = reader.result;
+            reader.onload = (e) => {
+                qrisImg = e.target.result;
                 localStorage.setItem('okt_qris', qrisImg);
                 document.getElementById('img-qris-view').src = qrisImg;
             };
@@ -296,25 +349,22 @@
         }
 
         function toggleQrisView() {
-            const m = document.getElementById('metode-bayar').value;
-            document.getElementById('qris-display').style.display = (m === 'Qris') ? 'block' : 'none';
-        }
-
-        function hapusSemuaRiwayat() {
-            if(confirm("Hapus riwayat?")) { riwayat = []; localStorage.setItem('okt_riwayat', JSON.stringify(riwayat)); renderRiwayat(); }
+            document.getElementById('qris-display').style.display = (document.getElementById('metode-bayar').value === 'Qris') ? 'block' : 'none';
         }
 
         function cetakLaporanPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            const satuBulanLalu = new Date().getTime() - (30 * 24 * 60 * 60 * 1000);
-            const dataLaporan = riwayat.filter(h => h.timestamp >= satuBulanLalu);
-            if(dataLaporan.length === 0) return alert("Data kosong");
-            doc.text("LAPORAN PENJUALAN OKTSHOP17", 105, 15, { align: 'center' });
-            const rows = dataLaporan.map((h, i) => [i+1, h.tgl, h.items, h.metode, "Rp " + h.total.toLocaleString()]);
-            doc.autoTable({ startY: 25, head: [['No', 'Tanggal', 'Menu', 'Metode', 'Total']], body: rows });
+            const satuBulan = new Date().getTime() - (30 * 24 * 60 * 60 * 1000);
+            const data = riwayat.filter(h => h.timestamp >= satuBulan);
+            if (!data.length) return alert("Data 30 hari kosong.");
+            doc.text("LAPORAN OKTSHOP17", 105, 15, {align:'center'});
+            const baris = data.map((h, i) => [i+1, h.tgl, h.items, h.metode, "Rp "+h.total.toLocaleString()]);
+            doc.autoTable({startY:25, head:[['No','Tgl','Menu','Metode','Total']], body:baris});
             doc.save("Laporan.pdf");
         }
+
+        function hapusSemuaRiwayat() { if(confirm("Hapus Riwayat?")) { riwayat=[]; localStorage.setItem('okt_riwayat', JSON.stringify(riwayat)); } }
 
         init();
     </script>
