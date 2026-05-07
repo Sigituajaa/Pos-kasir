@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KASIR OKTSHOP17</title>
-    <script src="https://cdn.jsdelivr.net/npm/lucide-static@0.321.0/font/lucide.min.js"></script>
     <style>
         :root {
             --primary: #27ae60;
@@ -13,12 +12,39 @@
             --bg: #f4f4f4;
         }
 
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: var(--bg); color: var(--text); padding-bottom: 80px; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: var(--bg); color: var(--text); padding-bottom: 80px; overflow-x: hidden; }
         
         /* Header */
         header { background: var(--primary); color: white; padding: 15px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .profile-btn { position: absolute; left: 15px; cursor: pointer; background: none; border: none; color: white; font-size: 24px; }
+        .profile-btn { position: absolute; left: 15px; cursor: pointer; background: none; border: none; color: white; font-size: 24px; display: flex; align-items: center; }
         header h1 { margin: 0; font-size: 1.2rem; letter-spacing: 1px; }
+
+        /* SIDEBAR ADMIN (Pojok Kiri) */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -320px; /* Tersembunyi di kiri */
+            width: 300px;
+            height: 100%;
+            background: white;
+            z-index: 1001;
+            transition: 0.3s;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+            padding: 20px;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+        .sidebar.active { left: 0; } /* Muncul */
+        
+        /* Overlay saat sidebar aktif */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        .overlay.active { display: block; }
 
         /* Katalog Menu */
         .container { padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -27,111 +53,119 @@
         .card-info { padding: 10px; flex-grow: 1; }
         .card-info h3 { margin: 0 0 5px; font-size: 1rem; }
         .card-info p { margin: 0; color: var(--primary); font-weight: bold; }
-        .card-info small { color: #666; font-size: 0.8rem; }
-        .btn-add { background: var(--primary); color: white; border: none; padding: 8px; border-radius: 0 0 12px 12px; cursor: pointer; width: 100%; font-weight: bold; }
-
-        /* Bottom Nav (Keranjang) */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--secondary); border-top: 2px solid var(--primary); display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; box-sizing: border-box; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
-        .cart-info { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; }
-        .btn-bayar { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
-        /* Modal / Overlay */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; overflow-y: auto; }
-        .modal-content { background: white; margin: 20px auto; width: 90%; max-width: 500px; border-radius: 15px; padding: 20px; position: relative; }
-        .close-btn { position: absolute; right: 20px; top: 20px; font-size: 20px; cursor: pointer; border: none; background: none; }
         
-        /* Form & Inputs */
-        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-        .history-item { border-bottom: 1px solid #eee; padding: 10px 0; font-size: 0.9rem; }
-        .qris-preview { width: 100%; max-height: 300px; object-fit: contain; margin-top: 10px; }
+        .btn-add { background: var(--primary); color: white; border: none; padding: 10px; cursor: pointer; width: 100%; font-weight: bold; }
 
-        @media (max-width: 400px) { .container { grid-template-columns: 1fr; } }
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--secondary); border-top: 2px solid var(--primary); display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; box-sizing: border-box; }
+        .btn-bayar { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+        /* Modal Umum (Untuk Checkout) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; }
+        .modal-content { background: white; margin: 50px auto; width: 90%; max-width: 450px; border-radius: 15px; padding: 20px; position: relative; }
+        
+        input, select, button.action-btn { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        hr { border: 0; border-top: 1px solid #eee; margin: 20px 0; }
+        .history-item { border-bottom: 1px solid #eee; padding: 10px 0; font-size: 0.85rem; }
+        .close-sidebar { float: right; font-size: 24px; cursor: pointer; border: none; background: none; }
     </style>
 </head>
 <body>
 
     <header>
-        <button class="profile-btn" onclick="openModal('modal-profil')">👤</button>
+        <button class="profile-btn" onclick="toggleSidebar()">👤</button>
         <h1>KASIR OKTSHOP17</h1>
     </header>
 
-    <div class="container" id="katalog-list">
-        <!-- Katalog akan muncul di sini -->
+    <!-- OVERLAY -->
+    <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- SIDEBAR ADMIN PANEL (POJOK KIRI) -->
+    <div id="sidebar-admin" class="sidebar">
+        <button class="close-sidebar" onclick="toggleSidebar()">&times;</button>
+        <h2 style="color: var(--primary);">Admin Panel</h2>
+        <p>Kelola Toko Anda</p>
+        <hr>
+        
+        <h3>Update Katalog</h3>
+        <input type="text" id="p-nama" placeholder="Nama Produk">
+        <input type="number" id="p-harga" placeholder="Harga (Rp)">
+        <input type="number" id="p-stok" placeholder="Stok">
+        <input type="file" id="p-foto" accept="image/*">
+        <button class="action-btn" onclick="tambahProduk()" style="background: var(--primary); color: white;">Tambah Produk</button>
+        
+        <hr>
+        <h3>QRIS Pembayaran</h3>
+        <input type="file" id="qris-input" accept="image/*" onchange="updateQris(this)">
+        <small>Upload gambar barcode QRIS Anda</small>
+        
+        <hr>
+        <h3>Riwayat Pesanan</h3>
+        <div id="riwayat-list">Belum ada riwayat transaksi.</div>
+        <button class="action-btn" onclick="hapusRiwayat()" style="background: #e74c3c; color: white; margin-top: 10px; font-size: 0.8rem;">Hapus Semua Riwayat</button>
     </div>
 
+    <!-- DAFTAR PRODUK -->
+    <div class="container" id="katalog-list">
+        <!-- Produk akan di-render di sini -->
+    </div>
+
+    <!-- NAVIGATION BAWAH -->
     <div class="bottom-nav">
         <div class="cart-info">
-            <span>🛒</span>
-            <span id="cart-count">0 Item</span>
-            <strong id="cart-total">Rp 0</strong>
+            <span style="font-size: 1.5rem;">🛒</span>
+            <span id="cart-count">0</span> | <strong id="cart-total">Rp 0</strong>
         </div>
-        <button class="btn-bayar" onclick="openModal('modal-checkout')">BAYAR</button>
-    </div>
-
-    <!-- MODAL PROFIL / SETTINGS -->
-    <div id="modal-profil" class="modal">
-        <div class="modal-content">
-            <button class="close-btn" onclick="closeModal('modal-profil')">✖</button>
-            <h2>Admin Panel</h2>
-            <hr>
-            <h3>Tambah/Update Katalog</h3>
-            <input type="text" id="p-nama" placeholder="Nama Produk">
-            <input type="number" id="p-harga" placeholder="Harga (Rp)">
-            <input type="number" id="p-stok" placeholder="Stok">
-            <input type="file" id="p-foto" accept="image/*">
-            <button onclick="tambahProduk()" style="background: var(--primary); color: white;">Simpan Produk</button>
-            
-            <hr>
-            <h3>Update Foto QRIS</h3>
-            <input type="file" id="qris-input" accept="image/*" onchange="updateQris(this)">
-            
-            <hr>
-            <h3>Riwayat Pesanan</h3>
-            <div id="riwayat-list">Belum ada riwayat.</div>
-        </div>
+        <button class="btn-bayar" onclick="openCheckout()">BAYAR</button>
     </div>
 
     <!-- MODAL CHECKOUT -->
     <div id="modal-checkout" class="modal">
         <div class="modal-content">
-            <button class="close-btn" onclick="closeModal('modal-checkout')">✖</button>
-            <h2>Checkout</h2>
-            <div id="checkout-items"></div>
-            <h3 id="checkout-total">Total: Rp 0</h3>
-            <hr>
-            <label>Metode Pembayaran:</label>
+            <h2 style="margin-top:0">Total Bayar</h2>
+            <div id="checkout-items" style="max-height: 150px; overflow-y: auto; margin-bottom: 10px;"></div>
+            <h3 id="checkout-total-val" style="color: var(--primary);">Rp 0</h3>
+            
+            <label>Pilih Metode:</label>
             <select id="metode-bayar" onchange="toggleQrisView()">
                 <option value="Cash">Cash (Tunai)</option>
                 <option value="Qris">QRIS</option>
             </select>
             
-            <div id="qris-display" style="display:none; text-align: center;">
-                <p>Silahkan Scan QRIS di bawah ini:</p>
-                <img id="img-qris-view" class="qris-preview" src="" alt="QRIS Belum Diupload">
+            <div id="qris-display" style="display:none; text-align: center; margin-top: 15px;">
+                <p style="font-size: 0.8rem;">Silahkan scan untuk membayar:</p>
+                <img id="img-qris-view" src="" style="width: 100%; border: 1px solid #ddd; border-radius: 10px;" alt="QRIS Belum Diupload">
             </div>
 
-            <button onclick="prosesBayar()" style="background: var(--primary); color: white; margin-top: 20px;">KONFIRMASI SELESAI</button>
+            <button class="action-btn" onclick="prosesBayar()" style="background: var(--primary); color: white; margin-top: 15px;">SELESAI & SIMPAN</button>
+            <button class="action-btn" onclick="closeCheckout()" style="background: #eee; border: none;">Batal</button>
         </div>
     </div>
 
     <script>
-        // State Management
         let produk = JSON.parse(localStorage.getItem('okt_produk')) || [];
         let keranjang = [];
         let riwayat = JSON.parse(localStorage.getItem('okt_riwayat')) || [];
         let qrisImg = localStorage.getItem('okt_qris') || '';
 
-        // Inisialisasi
         function init() {
             renderKatalog();
             renderRiwayat();
             document.getElementById('img-qris-view').src = qrisImg;
         }
 
+        // Toggle Sidebar Kiri
+        function toggleSidebar() {
+            document.getElementById('sidebar-admin').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
         // Fungsi Katalog
         function renderKatalog() {
             const list = document.getElementById('katalog-list');
             list.innerHTML = '';
+            if(produk.length === 0) list.innerHTML = '<p style="grid-column: 1/3; text-align:center;">Produk Kosong. Klik Logo Profil untuk tambah produk.</p>';
+            
             produk.forEach((p, index) => {
                 list.innerHTML += `
                     <div class="card">
@@ -155,61 +189,67 @@
 
             if(!nama || !harga) return alert("Isi nama dan harga!");
 
-            const simpan = (imgData = '') => {
+            const saveAction = (imgData = '') => {
                 produk.push({ nama, harga, stok, foto: imgData });
                 localStorage.setItem('okt_produk', JSON.stringify(produk));
                 renderKatalog();
-                alert("Produk Berhasil Ditambah!");
+                alert("Produk Berhasil Ditambahkan!");
+                // Clear input
+                document.getElementById('p-nama').value = '';
+                document.getElementById('p-harga').value = '';
             };
 
             if (fotoFile) {
                 const reader = new FileReader();
-                reader.onloadend = () => simpan(reader.result);
+                reader.onloadend = () => saveAction(reader.result);
                 reader.readAsDataURL(fotoFile);
             } else {
-                simpan();
+                saveAction();
             }
         }
 
-        // Fungsi Keranjang
-        function tambahKeKeranjang(index) {
-            if(produk[index].stok <= 0) return alert("Stok Habis!");
-            keranjang.push(produk[index]);
+        // Keranjang & Checkout
+        function tambahKeKeranjang(idx) {
+            keranjang.push(produk[idx]);
             updateCartUI();
         }
 
         function updateCartUI() {
-            const count = keranjang.length;
             const total = keranjang.reduce((a, b) => a + parseInt(b.harga), 0);
-            document.getElementById('cart-count').innerText = `${count} Item`;
+            document.getElementById('cart-count').innerText = keranjang.length;
             document.getElementById('cart-total').innerText = `Rp ${total.toLocaleString()}`;
         }
 
-        // Fungsi Bayar
+        function openCheckout() {
+            if(keranjang.length === 0) return alert("Keranjang masih kosong!");
+            const total = keranjang.reduce((a, b) => a + parseInt(b.harga), 0);
+            document.getElementById('checkout-total-val').innerText = `Rp ${total.toLocaleString()}`;
+            document.getElementById('checkout-items').innerHTML = keranjang.map(i => `<div style="display:flex; justify-content:space-between; font-size:0.9rem; padding:5px 0; border-bottom:1px solid #f9f9f9"><span>${i.nama}</span> <span>Rp ${parseInt(i.harga).toLocaleString()}</span></div>`).join('');
+            document.getElementById('modal-checkout').style.display = 'block';
+        }
+
+        function closeCheckout() { document.getElementById('modal-checkout').style.display = 'none'; }
+
         function prosesBayar() {
-            if(keranjang.length === 0) return alert("Keranjang kosong!");
-            
             const metode = document.getElementById('metode-bayar').value;
             const total = keranjang.reduce((a, b) => a + parseInt(b.harga), 0);
             
-            const transaksi = {
-                tgl: new Date().toLocaleString(),
+            riwayat.push({
+                tgl: new Date().toLocaleString('id-ID'),
                 item: keranjang.map(i => i.nama).join(", "),
                 total: total,
                 metode: metode
-            };
-
-            riwayat.push(transaksi);
-            localStorage.setItem('okt_riwayat', JSON.stringify(riwayat));
+            });
             
-            alert(`Pembayaran ${metode} Berhasil!`);
+            localStorage.setItem('okt_riwayat', JSON.stringify(riwayat));
+            alert("Transaksi Berhasil Disimpan!");
             keranjang = [];
             updateCartUI();
-            closeModal('modal-checkout');
+            closeCheckout();
             renderRiwayat();
         }
 
-        // QRIS Manager
+        // Admin Features
         function updateQris(input) {
             const file = input.files[0];
             const reader = new FileReader();
@@ -217,39 +257,36 @@
                 qrisImg = reader.result;
                 localStorage.setItem('okt_qris', qrisImg);
                 document.getElementById('img-qris-view').src = qrisImg;
-                alert("Foto QRIS diperbarui!");
+                alert("QRIS Berhasil Diupdate!");
             };
             reader.readAsDataURL(file);
         }
 
         function toggleQrisView() {
-            const metode = document.getElementById('metode-bayar').value;
-            document.getElementById('qris-display').style.display = (metode === 'Qris') ? 'block' : 'none';
+            const m = document.getElementById('metode-bayar').value;
+            document.getElementById('qris-display').style.display = (m === 'Qris') ? 'block' : 'none';
         }
 
-        // Riwayat
         function renderRiwayat() {
             const list = document.getElementById('riwayat-list');
             if(riwayat.length === 0) return;
-            list.innerHTML = riwayat.reverse().map(h => `
+            list.innerHTML = riwayat.slice().reverse().map(h => `
                 <div class="history-item">
-                    <strong>${h.tgl}</strong><br>
-                    ${h.item} <br>
-                    <span color="green">Total: Rp ${h.total.toLocaleString()} (${h.metode})</span>
+                    <small>${h.tgl}</small><br>
+                    <strong>Rp ${h.total.toLocaleString()}</strong> (${h.metode})<br>
+                    <span style="font-size:0.75rem; color:#666">${h.item}</span>
                 </div>
             `).join('');
         }
 
-        // Modal Helpers
-        function openModal(id) { 
-            document.getElementById(id).style.display = 'block'; 
-            if(id === 'modal-checkout') {
-                const total = keranjang.reduce((a, b) => a + parseInt(b.harga), 0);
-                document.getElementById('checkout-total').innerText = `Total: Rp ${total.toLocaleString()}`;
-                document.getElementById('checkout-items').innerHTML = keranjang.map(i => `<div>${i.nama} - Rp ${parseInt(i.harga).toLocaleString()}</div>`).join('');
+        function hapusRiwayat() {
+            if(confirm("Hapus semua riwayat pesanan?")) {
+                riwayat = [];
+                localStorage.setItem('okt_riwayat', JSON.stringify(riwayat));
+                renderRiwayat();
+                location.reload();
             }
         }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
         init();
     </script>
