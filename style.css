@@ -1,83 +1,78 @@
-:root {
-    --primary: #27ae60;
-    --danger: #e74c3c;
-    --warning: #f39c12;
-    --bg: #f4f4f4;
+/* Layout Admin Panel */
+.admin-layout {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    align-items: flex-start;
 }
 
-body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; }
-
-header { 
-    background: var(--primary); color: white; padding: 15px; 
-    display: flex; align-items: center; justify-content: center; 
-    position: sticky; top: 0; z-index: 100; 
+.admin-sidebar {
+    width: 350px; /* Panel Kiri */
+    background: white;
+    color: #333;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 20px;
 }
 
-.profile-btn { position: absolute; left: 15px; background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
-
-/* SIDEBAR */
-.sidebar { 
-    position: fixed; top: 0; left: -350px; width: 320px; height: 100%; 
-    background: white; z-index: 200; transition: 0.3s; padding: 20px; 
-    overflow-y: auto; box-shadow: 2px 0 10px rgba(0,0,0,0.1); 
-}
-.sidebar.active { left: 0; }
-.sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-
-.overlay { 
-    display: none; position: fixed; top: 0; left: 0; width: 100%; 
-    height: 100%; background: rgba(0,0,0,0.5); z-index: 150; 
-}
-.overlay.active { display: block; }
-
-/* FORM */
-.form-box { background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ddd; }
-input, select, button { width: 100%; padding: 10px; margin: 5px 0; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
-
-/* DAFTAR KATALOG DI ADMIN (PERBAIKAN TOMBOL +) */
-.admin-item { 
-    display: flex; align-items: center; background: white; 
-    padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eee; 
-}
-.admin-item img { width: 45px; height: 45px; border-radius: 5px; object-fit: cover; margin-right: 10px; }
-.admin-info { flex: 1; font-size: 14px; }
-.admin-actions { display: flex; gap: 8px; }
-
-.btn-edit-plus { 
-    background: var(--primary); color: white; border: none; 
-    width: 35px; height: 35px; border-radius: 50%; 
-    font-size: 20px; font-weight: bold; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-}
-.btn-del-trash { 
-    background: var(--danger); color: white; border: none; 
-    width: 35px; height: 35px; border-radius: 50%; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
+.admin-main-content {
+    flex: 1; /* Sisa layar untuk orderan */
 }
 
-/* MAIN KATALOG */
-.container { padding: 15px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-.card img { width: 100%; height: 120px; object-fit: cover; }
-.card-body { padding: 10px; text-align: center; }
-.card-body h3 { margin: 5px 0; font-size: 14px; }
-.card-body p { color: var(--primary); font-weight: bold; margin: 5px 0; }
+/* Styling Card sesuai Gambar */
+.admin-header-title h2 { color: #000; font-weight: 800; margin-bottom: 20px; }
 
-/* BOTTOM NAV */
-.bottom-nav { 
-    position: fixed; bottom: 0; width: 100%; background: white; 
-    display: flex; justify-content: space-between; align-items: center; 
-    padding: 10px 20px; border-top: 2px solid var(--primary); box-sizing: border-box;
+.admin-card {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
 }
-.btn-pay { width: auto; background: var(--primary); color: white; font-weight: bold; padding: 10px 30px; border: none; cursor: pointer; border-radius: 5px; }
 
-/* MODAL */
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 300; }
-.modal-content { background: white; width: 90%; max-width: 400px; margin: 50px auto; padding: 20px; border-radius: 10px; }
-.total-row { display: flex; justify-content: space-between; font-weight: bold; margin-top: 15px; color: var(--primary); }
-#box-qris img { width: 100%; margin-top: 10px; border-radius: 5px; }
+.admin-form input {
+    background: #fff;
+    border: 1px solid #ccc;
+    color: #333;
+    margin-bottom: 10px;
+}
 
-.btn-primary { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
-.btn-cancel { background: #eee; color: black; border: none; cursor: pointer; }
-.btn-report { background: var(--warning); color: white; border: none; cursor: pointer; }
-.btn-clear { background: none; border: none; color: red; cursor: pointer; font-size: 11px; margin-top: 10px; }
+.file-input-wrapper {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 12px;
+}
+
+.btn-success-full {
+    background: #27ae60;
+    color: white;
+    width: 100%;
+    border-radius: 8px;
+    padding: 12px;
+    font-weight: bold;
+}
+
+.btn-orange {
+    background: #f39c12;
+    color: white;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.text-danger-link {
+    color: #e74c3c;
+    text-align: center;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 20px;
+    display: block;
+}
+
+/* Responsive: Jika layar HP, tumpuk ke bawah */
+@media (max-width: 768px) {
+    .admin-layout { flex-direction: column; }
+    .admin-sidebar { width: 100%; position: static; }
+}
