@@ -1,61 +1,82 @@
 <!-- Tampilan Khusus Admin -->
-<div id="profile-admin" class="hidden admin-page-container">
-    <div class="admin-header-white">
-        <i class="fas fa-user-circle user-icon"></i>
-        <h1>KASIR OKTSHOP17</h1>
-        <h2>Admin Panel</h2>
-        <button class="btn-close-small">×</button>
-    </div>
+<div id="profile-admin" class="hidden">
+    <div class="admin-wrapper">
+        <!-- Header Kasir -->
+        <div class="kasir-header">
+            <div class="user-avatar"><i class="fas fa-user-tie"></i></div>
+            <h1>KASIR OKTSHOP17</h1>
+            <span class="badge-admin">Admin Mode</span>
+        </div>
 
-    <!-- Bagian Tambah Menu -->
-    <div class="admin-white-card">
-        <h3>Tambah Menu Baru</h3>
-        <div class="admin-input-row">
-            <input id="pName" type="text" placeholder="Nama Menu">
-            <input id="pPrice" type="number" placeholder="Harga (Rp)">
-        </div>
-        <input id="pStock" type="number" placeholder="Stok">
-        
-        <div class="file-row">
-            <input type="file" id="pImage" accept="image/*">
-            <button id="btnSaveProduct" class="btn-save-menu">SIMPAN MENU</button>
-        </div>
-    </div>
+        <div class="admin-grid-layout">
+            <!-- PANEL KIRI: MANAGEMENT -->
+            <aside class="admin-sidebar-box">
+                <div class="card-glass">
+                    <h3><i class="fas fa-plus-circle"></i> Tambah Menu Baru</h3>
+                    <div class="form-row">
+                        <input id="pName" type="text" placeholder="Nama Menu">
+                        <input id="pPrice" type="number" placeholder="Harga (Rp)">
+                    </div>
+                    <input id="pStock" type="number" placeholder="Stok">
+                    <div class="file-box">
+                        <input type="file" id="pImage" hidden>
+                        <label for="pImage" class="btn-outline-sm"><i class="fas fa-image"></i> Pilih Foto</label>
+                        <button id="btnSaveProduct" class="btn-success-sm">SIMPAN MENU</button>
+                    </div>
+                </div>
 
-    <!-- Bagian Katalog -->
-    <div class="admin-white-card">
-        <h3>Daftar Katalog (Max 20)</h3>
-        <div id="admin-prod-list" class="mini-catalog">
-            <p class="empty-text">Menu Kosong</p>
-        </div>
-        <hr>
-        <div class="admin-actions-grid">
-            <button onclick="exportReport()" class="btn-action-gray">📄 CETAK LAPORAN 30 HARI</button>
-            <div class="qris-upload">
-                <label>Update QRIS:</label>
-                <input type="file" id="qrisInput">
-            </div>
-            <button onclick="clearHistory()" class="btn-text-red">Hapus Semua Riwayat</button>
-        </div>
-    </div>
+                <div class="card-glass mt-15">
+                    <h3><i class="fas fa-list"></i> Katalog (Max 20)</h3>
+                    <div id="admin-prod-list" class="scroll-list">
+                        <!-- Produk muncul di sini -->
+                    </div>
+                    <hr class="divider">
+                    <button onclick="exportReport()" class="btn-orange-full">📄 CETAK LAPORAN 30 HARI</button>
+                    <div class="qris-box">
+                        <label>Update QRIS:</label>
+                        <input type="file" id="qrisInput">
+                    </div>
+                    <button onclick="clearHistory()" class="btn-link-red">Hapus Semua Riwayat</button>
+                </div>
+            </aside>
 
-    <!-- Bagian Checkout (Kasir) -->
-    <div class="admin-white-card checkout-section">
-        <h3>Checkout</h3>
-        <div class="checkout-info">
-            <p>0 Item</p>
-            <h2 id="checkout-total">Rp 0</h2>
-            <button class="btn-bayar">BAYAR</button>
-        </div>
-        <hr>
-        <div class="payment-row">
-            <label>Metode Pembayaran:</label>
-            <select id="payMethod">
-                <option>Cash (Tunai)</option>
-                <option>Transfer/QRIS</option>
-            </select>
-            <button class="btn-selesai">SELESAI</button>
-            <button class="btn-kembali">Kembali</button>
+            <!-- PANEL KANAN: CHECKOUT KASIR -->
+            <main class="admin-main-box">
+                <div class="card-checkout">
+                    <h3><i class="fas fa-shopping-cart"></i> Checkout</h3>
+                    <div class="checkout-display">
+                        <div class="items-count"><span id="cart-count">0</span> Item</div>
+                        <div class="total-price">Total: <h2 id="checkout-total">Rp 0</h2></div>
+                    </div>
+                    <button class="btn-pay-now" onclick="processPayment()">BAYAR SEKARANG</button>
+                    
+                    <hr class="divider">
+                    
+                    <div class="payment-method">
+                        <label>Metode Pembayaran:</label>
+                        <select id="payMethod" class="select-premium">
+                            <option value="Cash">Cash (Tunai)</option>
+                            <option value="QRIS">Transfer / QRIS</option>
+                        </select>
+                        <div class="action-btns">
+                            <button class="btn-done" onclick="finishTransaction()">SELESAI</button>
+                            <button class="btn-back" onclick="resetCart()">KEMBALI</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daftar Orderan Masuk/Redeem -->
+                <div class="tabs admin-tabs mt-15">
+                    <div class="tab active" onclick="switchAdminTab('adm-order')">Orderan</div>
+                    <div class="tab" onclick="switchAdminTab('adm-redeem')">Poin</div>
+                </div>
+                <div id="adm-order" class="adm-content">
+                    <div id="admin-order-list"></div>
+                </div>
+                <div id="adm-redeem" class="adm-content hidden">
+                    <div id="admin-redeem-list"></div>
+                </div>
+            </main>
         </div>
     </div>
 </div>
