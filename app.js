@@ -1,100 +1,53 @@
-// Tambahkan import Storage
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const storage = getStorage(app);
 
-// --- Handle Save Product (With Image) ---
+// Update Fungsi Admin
+async function loadAdminData() {
+    // Load Daftar Produk untuk Admin
+    onSnapshot(collection(db, "products"), (snap) => {
+        const list = document.getElementById('admin-prod-list');
+        list.innerHTML = "";
+        if (snap.empty) list.innerHTML = "Menu Kosong";
+        snap.forEach(doc => {
+            const p = doc.data();
+            list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:5px; border-bottom:1px solid #eee">
+                <span>${p.name} - Rp ${p.price.toLocaleString()}</span>
+                <button onclick="deleteProduct('${doc.id}')" style="color:red; background:none; width:auto; padding:0">Hapus</button>
+            </div>`;
+        });
+    });
+}
+
+// Simpan Menu Baru dengan Gambar
 document.getElementById('btnSaveProduct').onclick = async () => {
     const name = document.getElementById('pName').value;
     const price = parseInt(document.getElementById('pPrice').value);
     const stock = parseInt(document.getElementById('pStock').value);
-    const imageFile = document.getElementById('pImage').files[0];
+    const file = document.getElementById('pImage').files[0];
 
-    if (!name || !price || !imageFile) return alert("Mohon lengkapi data dan foto!");
-
-    try {
-        showLoading(true);
-        // 1. Upload ke Storage
-        const storageRef = ref(storage, `products/${name}_${Date.now()}`);
-        const snapshot = await uploadBytes(storageRef, imageFile);
-        const downloadURL = await getDownloadURL(snapshot.ref);
-
-        // 2. Simpan ke Firestore
-        await setDoc(doc(db, "products", name), {
-            name: name,
-            price: price,
-            stock: stock,
-            image: downloadURL,
-            createdAt: serverTimestamp()
-        });
-
-        alert("Produk Berhasil Disimpan!");
-        location.reload();
-    } catch (err) {
-        console.error(err);
-        alert("Gagal menyimpan produk");
-    } finally {
-        showLoading(false);
-    }
-};
-
-// --- Handle Update QRIS ---
-document.getElementById('qrisInput').onchange = async (e) => {
-    const file = e.target.files[0];
-    if(!file) return;
+    if (!name || !price) return alert("Isi Nama & Harga!");
 
     try {
-        showLoading(true);
-        const qrisRef = ref(storage, 'config/qris_payment');
-        await uploadBytes(qrisRef, file);
-        const url = await getDownloadURL(qrisRef);
-        
-        // Simpan URL QRIS ke koleksi config agar bisa dipanggil di modal bayar
-        await setDoc(doc(db, "settings", "payment"), { qrisUrl: url });
-        
-        alert("QRIS Berhasil Diupdate!");
-    } catch (err) {
-        alert("Gagal update QRIS");
-    } finally {
-        showLoading(false);
-    }
-};
-
-// --- Fungsi Pendukung ---
-window.exportReport = () => {
-    alert("Fitur Laporan Sedang Disiapkan (Export CSV)");
-    // Di sini Anda bisa menambahkan logic export excel/csv dari koleksi orders
-};
-
-window.clearHistory = async () => {
-    if(confirm("Hapus semua riwayat transaksi? Data tidak bisa dikembalikan.")){
-        // Logic untuk menghapus koleksi orders (Admin only)
-        alert("Riwayat dihapus.");
-    }
-};
-
-function showLoading(status) {
-    document.getElementById('loading').classList.toggle('hidden', !status);
-}
-
-// Tambahkan listener untuk daftar katalog di sidebar
-function loadAdminCatalog() {
-    onSnapshot(collection(db, "products"), (snap) => {
-        const list = document.getElementById('admin-prod-list');
-        if(snap.empty) {
-            list.innerHTML = '<p class="empty-text">Menu Kosong</p>';
-            return;
+        let url = "";
+        if (file) {
+            const storageRef = ref(storage, 'products/' + name);
+            await uploadBytes(storageRef, file);
+            url = await getDownloadURL(storageRef);
         }
-        list.innerHTML = "";
-        snap.forEach(d => {
-            const p = d.data();
-            list.innerHTML += `
-                <div style="display:flex; justify-content:space-between; font-size:12px; border-bottom:1px solid #eee; padding:5px 0;">
-                    <span>${p.name} (Stok: ${p.stock})</span>
-                    <b style="color:red; cursor:pointer" onclick="deleteProduct('${d.id}')">Hapus</b>
-                </div>
-            `;
+
+        await setDoc(doc(db, "products", name), {
+            name, price, stock, image: url, createdAt: serverTimestamp()
         });
-    });
-}
-// Panggil loadAdminCatalog() di dalam onAuthStateChanged jika role === 'admin'
+        alert("Menu Berhasil Disimpan!");
+        document.getElementById('pName').value = "";
+        document.getElementById('pPrice').value = "";
+    } catch (e) { alert("Gagal Simpan: " + e.message); }
+};
+
+// Fungsi Delete
+window.deleteProduct = async (id) => {
+    if(confirm("Hapus menu ini?")) {
+        await deleteDoc(doc(db, "products", id));
+    }
+};
