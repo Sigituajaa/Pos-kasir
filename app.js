@@ -1,61 +1,62 @@
-<!-- Tampilan Khusus Admin -->
-<div id="profile-admin" class="hidden admin-page-container">
-    <div class="admin-header-white">
-        <i class="fas fa-user-circle user-icon"></i>
-        <h1>KASIR OKTSHOP17</h1>
-        <h2>Admin Panel</h2>
-        <button class="btn-close-small">×</button>
-    </div>
+// Variable lokal untuk kasir
+let cartItems = [];
+let totalTagihan = 0;
 
-    <!-- Bagian Tambah Menu -->
-    <div class="admin-white-card">
-        <h3>Tambah Menu Baru</h3>
-        <div class="admin-input-row">
-            <input id="pName" type="text" placeholder="Nama Menu">
-            <input id="pPrice" type="number" placeholder="Harga (Rp)">
-        </div>
-        <input id="pStock" type="number" placeholder="Stok">
+// Fungsi Menambah Item ke Kasir (Dipanggil dari daftar produk)
+window.addToCart = (name, price) => {
+    cartItems.push({name, price});
+    updateKasirDisplay();
+};
+
+function updateKasirDisplay() {
+    totalTagihan = cartItems.reduce((sum, item) => sum + item.price, 0);
+    document.getElementById('cart-count').innerText = cartItems.length;
+    document.getElementById('checkout-total').innerText = "Rp " + totalTagihan.toLocaleString();
+}
+
+window.resetCart = () => {
+    cartItems = [];
+    updateKasirDisplay();
+};
+
+// Fungsi Selesai Transaksi (Simpan ke Firebase)
+window.finishTransaction = async () => {
+    if (cartItems.length === 0) return alert("Keranjang kosong!");
+    
+    const method = document.getElementById('payMethod').value;
+    const saleID = "SALE-" + Date.now();
+
+    try {
+        await setDoc(doc(db, "sales_history", saleID), {
+            items: cartItems,
+            total: totalTagihan,
+            method: method,
+            admin: userData.name,
+            timestamp: serverTimestamp()
+        });
         
-        <div class="file-row">
-            <input type="file" id="pImage" accept="image/*">
-            <button id="btnSaveProduct" class="btn-save-menu">SIMPAN MENU</button>
-        </div>
-    </div>
+        alert("Transaksi Berhasil Disimpan!");
+        resetCart();
+    } catch (e) {
+        alert("Gagal menyimpan transaksi");
+    }
+};
 
-    <!-- Bagian Katalog -->
-    <div class="admin-white-card">
-        <h3>Daftar Katalog (Max 20)</h3>
-        <div id="admin-prod-list" class="mini-catalog">
-            <p class="empty-text">Menu Kosong</p>
-        </div>
-        <hr>
-        <div class="admin-actions-grid">
-            <button onclick="exportReport()" class="btn-action-gray">📄 CETAK LAPORAN 30 HARI</button>
-            <div class="qris-upload">
-                <label>Update QRIS:</label>
-                <input type="file" id="qrisInput">
-            </div>
-            <button onclick="clearHistory()" class="btn-text-red">Hapus Semua Riwayat</button>
-        </div>
-    </div>
-
-    <!-- Bagian Checkout (Kasir) -->
-    <div class="admin-white-card checkout-section">
-        <h3>Checkout</h3>
-        <div class="checkout-info">
-            <p>0 Item</p>
-            <h2 id="checkout-total">Rp 0</h2>
-            <button class="btn-bayar">BAYAR</button>
-        </div>
-        <hr>
-        <div class="payment-row">
-            <label>Metode Pembayaran:</label>
-            <select id="payMethod">
-                <option>Cash (Tunai)</option>
-                <option>Transfer/QRIS</option>
-            </select>
-            <button class="btn-selesai">SELESAI</button>
-            <button class="btn-kembali">Kembali</button>
-        </div>
-    </div>
-</div>
+// Update Load Katalog Admin agar ada tombol "Tambah ke Kasir"
+function loadKatalogAdmin() {
+    onSnapshot(collection(db, "products"), (snap) => {
+        const list = document.getElementById('admin-prod-list');
+        list.innerHTML = "";
+        snap.forEach(d => {
+            const p = d.data();
+            list.innerHTML += `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:8px; background:rgba(255,255,255,0.05); margin-bottom:5px; border-radius:10px;">
+                <span>${p.name}</span>
+                <div>
+                    <button onclick="addToCart('${p.name}', ${p.price})" class="btn-primary btn-sm" style="width:auto; display:inline; padding:5px 10px;">+ Kasir</button>
+                    <button onclick="deleteProduct('${d.id}')" style="background:none; color:red; width:auto; display:inline; margin-left:10px;"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`;
+        });
+    });
+}
