@@ -1,61 +1,61 @@
 <!-- Tampilan Khusus Admin -->
-<div id="profile-admin" class="hidden admin-layout">
-    <!-- Sidebar / Panel Kiri -->
-    <aside class="admin-sidebar">
-        <div class="admin-header-title">
-            <h2>Admin Panel</h2>
+<div id="profile-admin" class="hidden admin-page-container">
+    <div class="admin-header-white">
+        <i class="fas fa-user-circle user-icon"></i>
+        <h1>KASIR OKTSHOP17</h1>
+        <h2>Admin Panel</h2>
+        <button class="btn-close-small">×</button>
+    </div>
+
+    <!-- Bagian Tambah Menu -->
+    <div class="admin-white-card">
+        <h3>Tambah Menu Baru</h3>
+        <div class="admin-input-row">
+            <input id="pName" type="text" placeholder="Nama Menu">
+            <input id="pPrice" type="number" placeholder="Harga (Rp)">
         </div>
-
-        <div class="admin-card">
-            <h3>Tambah Menu Baru</h3>
-            <div class="admin-form">
-                <input id="pName" type="text" placeholder="Nama Menu">
-                <input id="pPrice" type="number" placeholder="Harga (Rp)">
-                <input id="pStock" type="number" placeholder="Stok">
-                
-                <div class="file-input-wrapper">
-                    <label for="pImage">Pilih Foto Produk</label>
-                    <input id="pImage" type="file" accept="image/*">
-                </div>
-
-                <button id="btnSaveProduct" class="btn-success-full">SIMPAN MENU</button>
-            </div>
-        </div>
-
-        <div class="admin-section">
-            <h4>Daftar Katalog (Max 20)</h4>
-            <div id="admin-prod-list" class="mini-list">
-                <!-- List Produk Muncul di Sini -->
-                <p class="empty-text">Menu Kosong</p>
-            </div>
-        </div>
-
-        <button onclick="exportReport()" class="btn-orange">
-            <i class="fas fa-file-alt"></i> CETAK LAPORAN 30 HARI
-        </button>
-
-        <div class="admin-card mt-20">
-            <h4>Update QRIS:</h4>
-            <div class="file-input-wrapper">
-                <input id="qrisInput" type="file" accept="image/*">
-            </div>
-        </div>
-
-        <p onclick="clearHistory()" class="text-danger-link">Hapus Semua Riwayat</p>
-    </aside>
-
-    <!-- Konten Kanan (Orderan) -->
-    <main class="admin-main-content">
-        <div class="tabs admin-tabs">
-            <div class="tab active" onclick="switchAdminTab('adm-order')">Order Masuk</div>
-            <div class="tab" onclick="switchAdminTab('adm-redeem')">Tukar Poin</div>
-        </div>
+        <input id="pStock" type="number" placeholder="Stok">
         
-        <div id="adm-order" class="adm-content">
-            <div id="admin-order-list"></div>
+        <div class="file-row">
+            <input type="file" id="pImage" accept="image/*">
+            <button id="btnSaveProduct" class="btn-save-menu">SIMPAN MENU</button>
         </div>
-        <div id="adm-redeem" class="adm-content hidden">
-            <div id="admin-redeem-list"></div>
+    </div>
+
+    <!-- Bagian Katalog -->
+    <div class="admin-white-card">
+        <h3>Daftar Katalog (Max 20)</h3>
+        <div id="admin-prod-list" class="mini-catalog">
+            <p class="empty-text">Menu Kosong</p>
         </div>
-    </main>
+        <hr>
+        <div class="admin-actions-grid">
+            <button onclick="exportReport()" class="btn-action-gray">📄 CETAK LAPORAN 30 HARI</button>
+            <div class="qris-upload">
+                <label>Update QRIS:</label>
+                <input type="file" id="qrisInput">
+            </div>
+            <button onclick="clearHistory()" class="btn-text-red">Hapus Semua Riwayat</button>
+        </div>
+    </div>
+
+    <!-- Bagian Checkout (Kasir) -->
+    <div class="admin-white-card checkout-section">
+        <h3>Checkout</h3>
+        <div class="checkout-info">
+            <p>0 Item</p>
+            <h2 id="checkout-total">Rp 0</h2>
+            <button class="btn-bayar">BAYAR</button>
+        </div>
+        <hr>
+        <div class="payment-row">
+            <label>Metode Pembayaran:</label>
+            <select id="payMethod">
+                <option>Cash (Tunai)</option>
+                <option>Transfer/QRIS</option>
+            </select>
+            <button class="btn-selesai">SELESAI</button>
+            <button class="btn-kembali">Kembali</button>
+        </div>
+    </div>
 </div>
