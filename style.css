@@ -1,50 +1,58 @@
-/* RESET UNTUK ADMIN PANEL (WHITE THEME) */
-.admin-page-container {
-    background: #fdfdfd;
-    color: #000;
-    min-height: 100vh;
-    padding: 15px;
-    margin: -15px; /* Menutupi padding container utama */
+/* ADMIN WRAPPER */
+.admin-wrapper { padding: 10px; animation: fadeIn 0.5s ease; }
+.kasir-header { text-align: left; margin-bottom: 20px; }
+.kasir-header h1 { font-size: 26px; font-weight: 800; color: #fff; margin: 0; }
+.badge-admin { background: var(--primary); font-size: 10px; padding: 2px 10px; border-radius: 10px; }
+
+/* GRID SYSTEM */
+.admin-grid-layout { display: flex; flex-direction: column; gap: 20px; }
+
+/* CARDS STYLE */
+.card-glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 20px;
 }
 
-.admin-header-white { margin-bottom: 20px; }
-.admin-header-white h1 { font-size: 24px; font-weight: 900; margin: 0; }
-.admin-header-white h2 { font-size: 18px; margin: 5px 0; }
-.user-icon { font-size: 30px; color: #cbd5e0; margin-bottom: 10px; }
-
-.admin-white-card {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 15px;
+.card-checkout {
+    background: var(--gradient);
+    padding: 25px;
+    border-radius: 25px;
+    box-shadow: 0 15px 35px rgba(255, 71, 87, 0.3);
 }
 
-.admin-white-card h3 { font-size: 14px; margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-
-/* Input Styling */
-.admin-white-card input, .admin-white-card select {
-    background: #fff !important;
-    border: 1px solid #cbd5e0 !important;
-    color: #333 !important;
-    padding: 8px !important;
-    font-size: 12px !important;
-    margin-bottom: 8px;
-    border-radius: 5px !important;
+/* INPUTS IN ADMIN */
+.admin-wrapper input, .select-premium {
+    background: rgba(0,0,0,0.3) !important;
+    border: 1px solid #444 !important;
+    color: white !important;
 }
 
-.admin-input-row { display: flex; gap: 10px; }
-.file-row { display: flex; align-items: center; justify-content: space-between; gap: 5px; margin-top: 5px; }
+.form-row { display: flex; gap: 10px; }
 
-/* Buttons */
-.btn-save-menu { background: #e2e8f0; color: #000; border: 1px solid #ccc; width: auto; padding: 5px 15px; font-size: 11px; }
-.btn-action-gray { background: #edf2f7; color: #4a5568; font-size: 11px; padding: 8px; border: 1px solid #cbd5e0; }
-.btn-bayar { background: #edf2f7; color: #000; width: 60px; padding: 5px; font-size: 11px; }
-.btn-selesai { background: #edf2f7; color: #000; padding: 5px 15px; width: auto; font-size: 11px; }
-.btn-kembali { background: #edf2f7; color: #000; padding: 5px 15px; width: auto; font-size: 11px; }
-.btn-text-red { background: none; color: #e53e3e; font-size: 11px; border: none; text-decoration: underline; width: auto; }
+/* BUTTONS */
+.btn-success-sm { background: #2ed573; color: white; padding: 10px; font-size: 12px; border-radius: 10px; }
+.btn-orange-full { background: #ffa502; color: white; margin: 15px 0; }
+.btn-pay-now { background: white; color: var(--primary); font-size: 18px; margin-top: 15px; }
+.btn-done { background: #2ed573; color: white; flex: 2; }
+.btn-back { background: rgba(255,255,255,0.2); color: white; flex: 1; }
 
-.admin-actions-grid { display: grid; gap: 10px; margin-top: 10px; }
-.qris-upload { font-size: 12px; border: 1px solid #eee; padding: 5px; border-radius: 5px; }
+.action-btns { display: flex; gap: 10px; margin-top: 15px; }
 
-.mini-catalog { min-height: 50px; font-size: 12px; color: #718096; }
+.scroll-list {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 10px;
+    font-size: 13px;
+}
+
+.divider { border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0; }
+
+/* Desktop View */
+@media (min-width: 769px) {
+    .admin-grid-layout { flex-direction: row; align-items: flex-start; }
+    .admin-sidebar-box { width: 40%; }
+    .admin-main-box { width: 60%; }
+}
