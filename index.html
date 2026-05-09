@@ -14,6 +14,8 @@
         .product-card { transition: all 0.2s ease; border: 1px solid #dbeafe; }
         .product-card:active { transform: scale(0.95); }
         .blue-gradient { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); }
+        /* Style khusus modal agar scroll halus */
+        .modal-open { overflow: hidden; }
     </style>
 </head>
 <body class="min-h-screen pb-32">
@@ -39,10 +41,9 @@
 
     <!-- MAIN CONTENT (KATALOG) -->
     <main id="page-home" class="max-w-6xl mx-auto p-4">
-        <!-- Banner Beranda Biru -->
         <div class="blue-gradient mb-8 p-8 rounded-[2.5rem] text-white shadow-xl shadow-blue-200">
             <h2 class="text-2xl font-extrabold mb-1">Menu Utama</h2>
-            <p class="text-blue-100 text-sm font-medium opacity-90">Klik produk untuk memproses pesanan pelanggan</p>
+            <p class="text-blue-100 text-sm font-medium opacity-90">Klik produk untuk memproses pesanan</p>
         </div>
 
         <div id="catalog-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -57,7 +58,6 @@
         </button>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Form Edit Produk -->
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
                 <h2 class="text-lg font-bold mb-5 flex items-center gap-2">
                     <i data-lucide="edit" class="text-blue-600 w-5 h-5"></i> Kelola Produk
@@ -81,7 +81,6 @@
                 </div>
             </div>
 
-            <!-- Laporan & Ringkasan -->
             <div class="space-y-6">
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
                     <h2 class="text-lg font-bold mb-5 flex items-center gap-2">
@@ -95,49 +94,8 @@
                         <button onclick="downloadPDF()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-black transition shadow-lg shadow-slate-200">
                             <i data-lucide="file-text" class="w-5 h-5"></i> Cetak Laporan Transaksi
                         </button>
-                        <button onclick="downloadItemRecapPDF()" class="w-full bg-white border-2 border-blue-600 text-blue-600 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-blue-50 transition">
-                            <i data-lucide="box" class="w-5 h-5"></i> Cetak Rekap Item Terjual
-                        </button>
                     </div>
                 </div>
-            </div>
-        </div>
-        
-        <!-- TABEL REKAP ITEM TERJUAL HARI INI -->
-        <div class="mt-6 bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-            <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
-                <i data-lucide="clipboard-list" class="text-blue-600 w-5 h-5"></i> Rekap Item Terjual Hari Ini
-            </h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead>
-                        <tr class="text-slate-400 text-[11px] uppercase tracking-widest border-b">
-                            <th class="py-4 font-bold">Nama Produk</th>
-                            <th class="py-4 font-bold text-center">Jumlah</th>
-                            <th class="py-4 font-bold text-right">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody id="item-recap-list" class="divide-y divide-slate-50">
-                        <!-- Render via JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- RIWAYAT TRANSAKSI TERAKHIR -->
-        <div class="mt-6 bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-            <h2 class="text-lg font-bold mb-4">Riwayat 5 Transaksi Terakhir</h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead>
-                        <tr class="text-slate-400 text-[11px] uppercase tracking-widest border-b">
-                            <th class="py-4 font-bold">Waktu</th>
-                            <th class="py-4 font-bold">Metode</th>
-                            <th class="py-4 font-bold text-right">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="order-history-list" class="divide-y divide-slate-50"></tbody>
-                </table>
             </div>
         </div>
     </main>
@@ -162,33 +120,50 @@
     </div>
 
     <!-- MODAL PEMBAYARAN -->
-    <div id="modal-checkout" class="fixed inset-0 bg-slate-900/60 z-[60] flex items-end md:items-center justify-center hidden p-4 backdrop-blur-sm transition-all">
+    <div id="modal-checkout" class="fixed inset-0 bg-slate-900/60 z-[60] flex items-end md:items-center justify-center hidden p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-md rounded-t-[2.5rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl">
             <div class="p-6 border-b flex justify-between items-center">
                 <h3 class="font-bold text-xl text-slate-800">Detail Pesanan</h3>
                 <button onclick="closeCheckout()" class="p-2 hover:bg-slate-100 rounded-full text-slate-400"><i data-lucide="x"></i></button>
             </div>
-            
             <div id="cart-items" class="max-h-[35vh] overflow-y-auto p-6 space-y-3"></div>
-
             <div class="p-8 bg-slate-50 space-y-6">
-                <div>
-                    <p class="font-bold text-[11px] text-slate-400 uppercase tracking-[0.2em] mb-4 text-center">Metode Pembayaran</p>
-                    <div class="grid grid-cols-3 gap-3">
-                        <button onclick="setPayment('Cash')" class="pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition hover:border-blue-500" id="btn-cash">CASH</button>
-                        <button onclick="setPayment('QRIS')" class="pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition hover:border-blue-500" id="btn-qr">QRIS</button>
-                        <button onclick="setPayment('Shopefood')" class="pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition hover:border-blue-500" id="btn-sf">SHOPEFOOD</button>
-                    </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <button onclick="setPayment('Cash')" class="pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition" id="btn-cash">CASH</button>
+                    <button onclick="setPayment('QRIS')" class="pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition" id="btn-qr">QRIS</button>
+                    <button onclick="setPayment('Shopee')" class="pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition" id="btn-sf">SHOPEE</button>
                 </div>
-                <button onclick="processOrder()" id="confirm-pay" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-[1.5rem] font-bold disabled:bg-slate-300 disabled:cursor-not-allowed transition shadow-xl shadow-blue-100" disabled>
+                <button onclick="processOrder()" id="confirm-pay" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-[1.5rem] font-bold disabled:bg-slate-300 transition" disabled>
                     KONFIRMASI SELESAI
                 </button>
             </div>
         </div>
     </div>
 
+    <!-- MODAL SUKSES & STRUK -->
+    <div id="modal-success" class="fixed inset-0 bg-slate-900/80 z-[70] flex items-center justify-center hidden p-4 backdrop-blur-md">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 text-center shadow-2xl">
+            <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i data-lucide="check-circle-2" class="w-12 h-12"></i>
+            </div>
+            <h2 class="text-2xl font-black text-slate-900 mb-2">Pembayaran Berhasil!</h2>
+            <p class="text-slate-500 text-sm mb-8">Silahkan pilih metode untuk memberikan struk kepada pelanggan.</p>
+            
+            <div class="space-y-3">
+                <button onclick="printReceipt()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-black transition">
+                    <i data-lucide="printer" class="w-5 h-5"></i> Cetak Struk (PDF)
+                </button>
+                <button onclick="sendWhatsApp()" class="w-full bg-emerald-500 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-emerald-600 transition">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i> Kirim WhatsApp
+                </button>
+                <button onclick="finishTransaction()" class="w-full bg-slate-100 text-slate-600 py-4 rounded-2xl font-bold hover:bg-slate-200 transition mt-4">
+                    Selesai & Reset
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // --- DATA PRODUK ---
         let products = JSON.parse(localStorage.getItem('pos_products')) || [
             { id: 1, name: 'Boci Urat', price: 12000 },
             { id: 2, name: 'Boci Ayam', price: 10000 },
@@ -206,6 +181,7 @@
 
         let cart = [];
         let selectedPayment = '';
+        let lastOrder = null;
         let orderHistory = JSON.parse(localStorage.getItem('pos_history')) || [];
 
         function init() {
@@ -218,34 +194,24 @@
             document.getElementById('page-home').classList.toggle('hidden', page !== 'home');
             document.getElementById('bottom-bar').classList.toggle('hidden', page !== 'home');
             document.getElementById('page-admin').classList.toggle('hidden', page !== 'admin');
-            if(page === 'admin') {
-                renderAdminTools();
-                loadProductData();
-            }
+            if(page === 'admin') renderAdminTools();
             lucide.createIcons();
         }
 
         function renderCatalog() {
             const grid = document.getElementById('catalog-grid');
             grid.innerHTML = products.map(p => `
-                <div onclick="addToCart(${p.id})" class="product-card bg-white p-5 rounded-[2rem] shadow-sm hover:shadow-md hover:border-blue-400 cursor-pointer relative group">
-                    <div class="relative z-10">
-                        <h3 class="font-extrabold text-slate-800 text-sm leading-tight mb-2 pr-4">${p.name}</h3>
-                        <p class="text-blue-600 font-black text-base">Rp ${p.price.toLocaleString()}</p>
-                    </div>
+                <div onclick="addToCart(${p.id})" class="product-card bg-white p-5 rounded-[2rem] shadow-sm hover:border-blue-400 cursor-pointer">
+                    <h3 class="font-extrabold text-slate-800 text-sm mb-2">${p.name}</h3>
+                    <p class="text-blue-600 font-black">Rp ${p.price.toLocaleString()}</p>
                 </div>
             `).join('');
-            lucide.createIcons();
         }
 
         function addToCart(id) {
             const product = products.find(p => p.id === id);
             const existing = cart.find(item => item.id === id);
-            if (existing) {
-                existing.qty++;
-            } else {
-                cart.push({ ...product, qty: 1 });
-            }
+            if (existing) { existing.qty++; } else { cart.push({ ...product, qty: 1 }); }
             updateCartUI();
         }
 
@@ -281,15 +247,15 @@
         function renderCartItems() {
             const container = document.getElementById('cart-items');
             container.innerHTML = cart.map(item => `
-                <div class="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-100">
-                    <div class="flex-1">
-                        <p class="font-bold text-slate-800 text-sm">${item.name}</p>
-                        <p class="text-xs text-blue-600 font-bold">Rp ${(item.price * item.qty).toLocaleString()}</p>
+                <div class="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-100 text-sm">
+                    <div>
+                        <p class="font-bold text-slate-800">${item.name}</p>
+                        <p class="text-blue-600 font-bold">Rp ${(item.price * item.qty).toLocaleString()}</p>
                     </div>
-                    <div class="flex items-center gap-3 bg-slate-50 p-1 rounded-xl">
-                        <button onclick="updateQty(${item.id}, -1)" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 font-bold">-</button>
-                        <span class="font-bold text-xs w-4 text-center">${item.qty}</span>
-                        <button onclick="updateQty(${item.id}, 1)" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-blue-600 font-bold">+</button>
+                    <div class="flex items-center gap-3 bg-slate-50 p-1 rounded-xl font-bold">
+                        <button onclick="updateQty(${item.id}, -1)" class="w-8 h-8 text-slate-400 hover:text-red-500">-</button>
+                        <span>${item.qty}</span>
+                        <button onclick="updateQty(${item.id}, 1)" class="w-8 h-8 text-slate-400 hover:text-blue-600">+</button>
                     </div>
                 </div>
             `).join('');
@@ -302,81 +268,118 @@
         }
 
         function updatePaymentButtons() {
-            const btns = { 'Cash': 'btn-cash', 'QRIS': 'btn-qr', 'Shopefood': 'btn-sf' };
+            const btns = { 'Cash': 'btn-cash', 'QRIS': 'btn-qr', 'Shopee': 'btn-sf' };
             Object.values(btns).forEach(id => {
                 document.getElementById(id).className = "pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition";
             });
             if(btns[selectedPayment]) {
-                document.getElementById(btns[selectedPayment]).className = "pay-btn border-2 border-blue-600 bg-blue-50 py-4 rounded-2xl text-[11px] font-bold text-center text-blue-700 transition";
+                document.getElementById(btns[selectedPayment]).className = "pay-btn border-2 border-blue-600 bg-blue-50 py-4 rounded-2xl text-[11px] font-bold text-center text-blue-700 transition font-black";
             }
         }
 
         function processOrder() {
-            const order = {
-                id: Date.now(),
-                date: new Date().toISOString(),
+            lastOrder = {
+                id: 'OKT' + Date.now().toString().slice(-6),
+                date: new Date().toLocaleString('id-ID'),
                 total: cart.reduce((sum, item) => sum + (item.price * item.qty), 0),
                 method: selectedPayment,
                 items: [...cart]
             };
-            orderHistory.push(order);
+            orderHistory.push(lastOrder);
             localStorage.setItem('pos_history', JSON.stringify(orderHistory));
-            alert('Pembayaran Berhasil!');
+            
+            document.getElementById('modal-checkout').classList.add('hidden');
+            document.getElementById('modal-success').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function finishTransaction() {
             cart = [];
-            closeCheckout();
+            lastOrder = null;
             updateCartUI();
+            document.getElementById('modal-success').classList.add('hidden');
+        }
+
+        // --- FUNGSI CETAK STRUK PDF ---
+        function printReceipt() {
+            if(!lastOrder) return;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                unit: 'mm',
+                format: [80, 150] // Ukuran struk thermal 80mm
+            });
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(14);
+            doc.text("OKTSHOP", 40, 10, { align: "center" });
+            
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "normal");
+            doc.text("Digital Point of Sale", 40, 14, { align: "center" });
+            doc.text("--------------------------------------------------", 40, 18, { align: "center" });
+            
+            doc.text(`No. Struk: ${lastOrder.id}`, 5, 22);
+            doc.text(`Tanggal  : ${lastOrder.date}`, 5, 26);
+            doc.text(`Metode   : ${lastOrder.method}`, 5, 30);
+            doc.text("--------------------------------------------------", 40, 34, { align: "center" });
+
+            let y = 38;
+            lastOrder.items.forEach(item => {
+                doc.setFont("helvetica", "bold");
+                doc.text(`${item.name}`, 5, y);
+                doc.setFont("helvetica", "normal");
+                const subtotal = (item.price * item.qty).toLocaleString();
+                doc.text(`${item.qty} x ${item.price.toLocaleString()}`, 5, y + 4);
+                doc.text(`Rp ${subtotal}`, 75, y + 4, { align: "right" });
+                y += 10;
+            });
+
+            doc.text("--------------------------------------------------", 40, y, { align: "center" });
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "bold");
+            doc.text("TOTAL BAYAR", 5, y + 6);
+            doc.text(`Rp ${lastOrder.total.toLocaleString()}`, 75, y + 6, { align: "right" });
+
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "italic");
+            doc.text("Terima kasih sudah berbelanja!", 40, y + 14, { align: "center" });
+
+            doc.save(`Struk_${lastOrder.id}.pdf`);
+        }
+
+        // --- FUNGSI KIRIM WHATSAPP ---
+        function sendWhatsApp() {
+            if(!lastOrder) return;
+            
+            let text = `*STRUK PEMBAYARAN OKTSHOP*%0A`;
+            text += `------------------------------------------%0A`;
+            text += `No: ${lastOrder.id}%0A`;
+            text += `Tgl: ${lastOrder.date}%0A`;
+            text += `Metode: ${lastOrder.method}%0A`;
+            text += `------------------------------------------%0A`;
+            
+            lastOrder.items.forEach(item => {
+                text += `*${item.name}*%0A`;
+                text += `${item.qty} x Rp ${item.price.toLocaleString()} = Rp ${(item.qty * item.price).toLocaleString()}%0A`;
+            });
+            
+            text += `------------------------------------------%0A`;
+            text += `*TOTAL: Rp ${lastOrder.total.toLocaleString()}*%0A`;
+            text += `------------------------------------------%0A`;
+            text += `Terima kasih atas kunjungannya!`;
+
+            window.open(`https://wa.me/?text=${text}`, '_blank');
         }
 
         // --- ADMIN LOGIC ---
         function renderAdminTools() {
             const select = document.getElementById('edit-select');
             select.innerHTML = products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            loadProductData();
             
-            const today = new Date().toLocaleDateString();
-            const todayOrders = orderHistory.filter(o => new Date(o.date).toLocaleDateString() === today);
+            const today = new Date().toLocaleDateString('id-ID');
+            const todayOrders = orderHistory.filter(o => o.date.includes(today));
             document.getElementById('today-count').innerText = todayOrders.length;
-
-            // Render 5 Transaksi Terakhir
-            const historyList = document.getElementById('order-history-list');
-            historyList.innerHTML = orderHistory.slice(-5).reverse().map(o => `
-                <tr class="text-sm">
-                    <td class="py-4 text-slate-400 font-medium">${new Date(o.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
-                    <td class="py-4 font-bold text-slate-700">${o.method}</td>
-                    <td class="py-4 text-right font-black text-blue-600">Rp ${o.total.toLocaleString()}</td>
-                </tr>
-            `).join('');
-
-            // Render Rekap Item Terjual
-            renderItemRecap(todayOrders);
-        }
-
-        function renderItemRecap(todayOrders) {
-            const recap = {};
-            todayOrders.forEach(order => {
-                order.items.forEach(item => {
-                    if (recap[item.name]) {
-                        recap[item.name].qty += item.qty;
-                        recap[item.name].total += (item.price * item.qty);
-                    } else {
-                        recap[item.name] = { qty: item.qty, total: (item.price * item.qty) };
-                    }
-                });
-            });
-
-            const recapList = document.getElementById('item-recap-list');
-            const items = Object.entries(recap);
-            if(items.length === 0) {
-                recapList.innerHTML = `<tr><td colspan="3" class="py-6 text-center text-slate-400 italic">Belum ada item terjual hari ini</td></tr>`;
-                return;
-            }
-
-            recapList.innerHTML = items.map(([name, data]) => `
-                <tr class="text-sm">
-                    <td class="py-4 font-bold text-slate-700">${name}</td>
-                    <td class="py-4 text-center font-bold text-slate-500">${data.qty}</td>
-                    <td class="py-4 text-right font-black text-blue-600">Rp ${data.total.toLocaleString()}</td>
-                </tr>
-            `).join('');
         }
 
         function loadProductData() {
@@ -390,63 +393,23 @@
 
         function updateProduct() {
             const id = parseInt(document.getElementById('edit-select').value);
-            const newName = document.getElementById('edit-name').value;
-            const newPrice = parseInt(document.getElementById('edit-price').value);
             const index = products.findIndex(p => p.id === id);
             if (index !== -1) {
-                if (newName) products[index].name = newName;
-                if (newPrice) products[index].price = newPrice;
+                products[index].name = document.getElementById('edit-name').value;
+                products[index].price = parseInt(document.getElementById('edit-price').value);
                 localStorage.setItem('pos_products', JSON.stringify(products));
-                alert('Produk diperbarui!');
+                alert('Produk berhasil diperbarui!');
                 renderCatalog();
-                renderAdminTools();
             }
         }
 
-        // --- PDF EXPORTS ---
         function downloadPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             doc.text("LAPORAN TRANSAKSI OKTSHOP", 14, 20);
-            const tableData = orderHistory.map(o => [new Date(o.date).toLocaleString(), o.method, `Rp ${o.total.toLocaleString()}`]);
-            doc.autoTable({ head: [['Waktu', 'Metode', 'Total']], body: tableData, startY: 30 });
-            doc.save(`Laporan-Transaksi-${Date.now()}.pdf`);
-        }
-
-        function downloadItemRecapPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const today = new Date().toLocaleDateString();
-            const todayOrders = orderHistory.filter(o => new Date(o.date).toLocaleDateString() === today);
-            
-            const recap = {};
-            todayOrders.forEach(order => {
-                order.items.forEach(item => {
-                    if (recap[item.name]) {
-                        recap[item.name].qty += item.qty;
-                        recap[item.name].total += (item.price * item.qty);
-                    } else {
-                        recap[item.name] = { qty: item.qty, total: (item.price * item.qty) };
-                    }
-                });
-            });
-
-            doc.setFontSize(16);
-            doc.text("REKAP PRODUK TERJUAL HARI INI", 14, 20);
-            doc.setFontSize(10);
-            doc.text(`Tanggal: ${new Date().toLocaleDateString('id-ID')}`, 14, 28);
-
-            const tableData = Object.entries(recap).map(([name, data]) => [name, data.qty, `Rp ${data.total.toLocaleString()}`]);
-            
-            doc.autoTable({
-                head: [['Nama Produk', 'Jumlah Terjual', 'Subtotal']],
-                body: tableData,
-                startY: 35,
-                theme: 'grid',
-                headStyles: { fillColor: [37, 99, 235] }
-            });
-
-            doc.save(`Rekap-Item-Hari-Ini-${Date.now()}.pdf`);
+            const data = orderHistory.map(o => [o.date, o.method, `Rp ${o.total.toLocaleString()}`]);
+            doc.autoTable({ head: [['Waktu', 'Metode', 'Total']], body: data, startY: 30 });
+            doc.save("Laporan_Penjualan.pdf");
         }
 
         init();
