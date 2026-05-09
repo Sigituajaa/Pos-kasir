@@ -10,23 +10,24 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
-        .product-card { transition: all 0.2s ease; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #eff6ff; }
+        .product-card { transition: all 0.2s ease; border: 1px solid #dbeafe; }
         .product-card:active { transform: scale(0.95); }
+        .blue-gradient { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); }
     </style>
 </head>
 <body class="min-h-screen pb-32">
 
     <!-- HEADER -->
-    <header class="bg-white border-b sticky top-0 z-50 px-4 py-4">
+    <header class="bg-white border-b sticky top-0 z-50 px-4 py-4 shadow-sm">
         <div class="flex items-center justify-between max-w-6xl mx-auto">
-            <button onclick="showPage('admin')" class="text-slate-600 font-semibold flex items-center gap-2 hover:bg-slate-100 p-2 rounded-xl transition">
+            <button onclick="showPage('admin')" class="text-blue-600 font-semibold flex items-center gap-2 hover:bg-blue-50 p-2 rounded-xl transition">
                 <i data-lucide="settings" class="w-5 h-5"></i>
-                <span class="hidden md:inline text-sm">Pengaturan</span>
+                <span class="hidden md:inline text-sm">Admin Panel</span>
             </button>
             <div class="text-center">
                 <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">OKTSHOP</h1>
-                <p class="text-[10px] font-bold text-blue-600 tracking-[0.2em] uppercase">Point of Sale System</p>
+                <p class="text-[10px] font-bold text-blue-600 tracking-[0.2em] uppercase">Digital Point of Sale</p>
             </div>
             <div class="w-20 md:w-24 flex justify-end">
                 <button onclick="location.reload()" class="p-2 hover:bg-slate-100 rounded-xl">
@@ -38,10 +39,12 @@
 
     <!-- MAIN CONTENT (KATALOG) -->
     <main id="page-home" class="max-w-6xl mx-auto p-4">
-        <div class="mb-6">
-            <h2 class="text-lg font-bold text-slate-800">Menu Produk</h2>
-            <p class="text-sm text-slate-500">Klik pada produk untuk menambahkan ke keranjang</p>
+        <!-- Banner Beranda Biru -->
+        <div class="blue-gradient mb-8 p-8 rounded-[2.5rem] text-white shadow-xl shadow-blue-200">
+            <h2 class="text-2xl font-extrabold mb-1">Menu Utama</h2>
+            <p class="text-blue-100 text-sm font-medium opacity-90">Klik produk untuk memproses pesanan pelanggan</p>
         </div>
+
         <div id="catalog-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <!-- Render via JS -->
         </div>
@@ -49,15 +52,15 @@
 
     <!-- ADMIN PANEL PAGE -->
     <main id="page-admin" class="max-w-4xl mx-auto p-4 hidden">
-        <button onclick="showPage('home')" class="mb-6 text-slate-600 flex items-center gap-2 hover:text-blue-600 font-medium">
-            <i data-lucide="chevron-left" class="w-5 h-5"></i> Kembali ke Kasir
+        <button onclick="showPage('home')" class="mb-6 text-blue-600 flex items-center gap-2 hover:underline font-bold">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i> Kembali ke Kasir
         </button>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Update Katalog Form -->
+            <!-- Form Edit Produk -->
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
                 <h2 class="text-lg font-bold mb-5 flex items-center gap-2">
-                    <i data-lucide="edit-3" class="text-blue-600 w-5 h-5"></i> Edit Data Produk
+                    <i data-lucide="edit" class="text-blue-600 w-5 h-5"></i> Kelola Produk
                 </h2>
                 <div class="space-y-4">
                     <div>
@@ -65,14 +68,14 @@
                         <select id="edit-select" onchange="loadProductData()" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 font-semibold"></select>
                     </div>
                     <div>
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Nama Produk Baru</label>
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Nama Baru</label>
                         <input id="edit-name" type="text" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
                     <div>
                         <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Harga Baru (Rp)</label>
                         <input id="edit-price" type="number" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono">
                     </div>
-                    <button onclick="updateProduct()" class="w-full bg-slate-900 hover:bg-black text-white py-4 rounded-2xl font-bold transition mt-2">
+                    <button onclick="updateProduct()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold transition mt-2 shadow-lg shadow-blue-100">
                         Simpan Perubahan
                     </button>
                 </div>
@@ -82,24 +85,48 @@
             <div class="space-y-6">
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
                     <h2 class="text-lg font-bold mb-5 flex items-center gap-2">
-                        <i data-lucide="pie-chart" class="text-emerald-600 w-5 h-5"></i> Performa Hari Ini
+                        <i data-lucide="pie-chart" class="text-emerald-600 w-5 h-5"></i> Laporan Penjualan
                     </h2>
-                    <div class="grid grid-cols-1 gap-4">
-                        <div class="p-5 bg-emerald-50 rounded-2xl border border-emerald-100">
-                            <p class="text-xs text-emerald-700 font-bold uppercase">Total Transaksi</p>
-                            <p id="today-count" class="text-4xl font-black text-emerald-800">0</p>
+                    <div class="space-y-3">
+                        <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100 flex justify-between items-center">
+                            <span class="text-xs font-bold text-blue-700 uppercase">Transaksi Hari Ini</span>
+                            <span id="today-count" class="text-2xl font-black text-blue-800">0</span>
                         </div>
-                        <button onclick="downloadPDF()" class="w-full bg-white border-2 border-slate-200 text-slate-700 hover:border-blue-600 hover:text-blue-600 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition">
-                            <i data-lucide="file-text" class="w-5 h-5"></i> Export Laporan PDF
+                        <button onclick="downloadPDF()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-black transition shadow-lg shadow-slate-200">
+                            <i data-lucide="file-text" class="w-5 h-5"></i> Cetak Laporan Transaksi
+                        </button>
+                        <button onclick="downloadItemRecapPDF()" class="w-full bg-white border-2 border-blue-600 text-blue-600 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-blue-50 transition">
+                            <i data-lucide="box" class="w-5 h-5"></i> Cetak Rekap Item Terjual
                         </button>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- Riwayat Tabel -->
+        <!-- TABEL REKAP ITEM TERJUAL HARI INI -->
         <div class="mt-6 bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-            <h2 class="text-lg font-bold mb-4">5 Transaksi Terakhir</h2>
+            <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                <i data-lucide="clipboard-list" class="text-blue-600 w-5 h-5"></i> Rekap Item Terjual Hari Ini
+            </h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="text-slate-400 text-[11px] uppercase tracking-widest border-b">
+                            <th class="py-4 font-bold">Nama Produk</th>
+                            <th class="py-4 font-bold text-center">Jumlah</th>
+                            <th class="py-4 font-bold text-right">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="item-recap-list" class="divide-y divide-slate-50">
+                        <!-- Render via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- RIWAYAT TRANSAKSI TERAKHIR -->
+        <div class="mt-6 bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-bold mb-4">Riwayat 5 Transaksi Terakhir</h2>
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
                     <thead>
@@ -116,25 +143,25 @@
     </main>
 
     <!-- BOTTOM BAR -->
-    <div id="bottom-bar" class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t p-4 pb-6 shadow-[0_-10px_25px_rgba(0,0,0,0.05)] z-40">
+    <div id="bottom-bar" class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t p-4 pb-6 shadow-[0_-10px_25px_rgba(0,0,0,0.05)] z-40">
         <div class="max-w-6xl mx-auto flex items-center justify-between gap-4">
             <div class="flex items-center gap-4">
-                <div class="relative bg-slate-900 p-3.5 rounded-2xl">
+                <div class="relative bg-blue-600 p-3.5 rounded-2xl shadow-lg shadow-blue-200">
                     <i data-lucide="shopping-cart" class="w-6 h-6 text-white"></i>
-                    <span id="cart-count" class="absolute -top-2 -right-2 bg-blue-600 text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center border-4 border-white">0</span>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-slate-900 text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center border-4 border-white">0</span>
                 </div>
                 <div>
                     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Pembayaran</p>
                     <p id="total-price" class="text-xl font-black text-slate-900">Rp 0</p>
                 </div>
             </div>
-            <button onclick="openCheckout()" class="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-bold transition-all transform active:scale-95 shadow-lg shadow-blue-200 text-center">
-                CHECKOUT
+            <button onclick="openCheckout()" class="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 rounded-2xl font-bold transition-all transform active:scale-95 shadow-xl shadow-blue-200 text-center text-lg">
+                BAYAR
             </button>
         </div>
     </div>
 
-    <!-- MODAL CHECKOUT -->
+    <!-- MODAL PEMBAYARAN -->
     <div id="modal-checkout" class="fixed inset-0 bg-slate-900/60 z-[60] flex items-end md:items-center justify-center hidden p-4 backdrop-blur-sm transition-all">
         <div class="bg-white w-full max-w-md rounded-t-[2.5rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl">
             <div class="p-6 border-b flex justify-between items-center">
@@ -146,11 +173,11 @@
 
             <div class="p-8 bg-slate-50 space-y-6">
                 <div>
-                    <p class="font-bold text-[11px] text-slate-400 uppercase tracking-[0.2em] mb-4 text-center">Pilih Metode Bayar</p>
+                    <p class="font-bold text-[11px] text-slate-400 uppercase tracking-[0.2em] mb-4 text-center">Metode Pembayaran</p>
                     <div class="grid grid-cols-3 gap-3">
                         <button onclick="setPayment('Cash')" class="pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition hover:border-blue-500" id="btn-cash">CASH</button>
                         <button onclick="setPayment('QRIS')" class="pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition hover:border-blue-500" id="btn-qr">QRIS</button>
-                        <button onclick="setPayment('Shopefood')" class="pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition hover:border-blue-500" id="btn-tf">SHOPEFOOD</button>
+                        <button onclick="setPayment('Shopefood')" class="pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition hover:border-blue-500" id="btn-sf">SHOPEFOOD</button>
                     </div>
                 </div>
                 <button onclick="processOrder()" id="confirm-pay" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-[1.5rem] font-bold disabled:bg-slate-300 disabled:cursor-not-allowed transition shadow-xl shadow-blue-100" disabled>
@@ -161,7 +188,7 @@
     </div>
 
     <script>
-        // --- DATA PRODUK (Tanpa Gambar) ---
+        // --- DATA PRODUK ---
         let products = JSON.parse(localStorage.getItem('pos_products')) || [
             { id: 1, name: 'Boci Urat', price: 12000 },
             { id: 2, name: 'Boci Ayam', price: 10000 },
@@ -198,14 +225,10 @@
             lucide.createIcons();
         }
 
-        // --- CATALOG LOGIC ---
         function renderCatalog() {
             const grid = document.getElementById('catalog-grid');
             grid.innerHTML = products.map(p => `
-                <div onclick="addToCart(${p.id})" class="product-card bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md hover:border-blue-200 cursor-pointer relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition">
-                        <i data-lucide="utensils" class="w-12 h-12"></i>
-                    </div>
+                <div onclick="addToCart(${p.id})" class="product-card bg-white p-5 rounded-[2rem] shadow-sm hover:shadow-md hover:border-blue-400 cursor-pointer relative group">
                     <div class="relative z-10">
                         <h3 class="font-extrabold text-slate-800 text-sm leading-tight mb-2 pr-4">${p.name}</h3>
                         <p class="text-blue-600 font-black text-base">Rp ${p.price.toLocaleString()}</p>
@@ -244,10 +267,9 @@
         }
 
         function openCheckout() {
-            if (cart.length === 0) return alert('Keranjang masih kosong!');
+            if (cart.length === 0) return alert('Pilih produk dulu!');
             document.getElementById('modal-checkout').classList.remove('hidden');
             renderCartItems();
-            lucide.createIcons();
         }
 
         function closeCheckout() {
@@ -259,12 +281,12 @@
         function renderCartItems() {
             const container = document.getElementById('cart-items');
             container.innerHTML = cart.map(item => `
-                <div class="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                <div class="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-100">
                     <div class="flex-1">
                         <p class="font-bold text-slate-800 text-sm">${item.name}</p>
                         <p class="text-xs text-blue-600 font-bold">Rp ${(item.price * item.qty).toLocaleString()}</p>
                     </div>
-                    <div class="flex items-center gap-3 bg-white p-1 rounded-xl border border-slate-200">
+                    <div class="flex items-center gap-3 bg-slate-50 p-1 rounded-xl">
                         <button onclick="updateQty(${item.id}, -1)" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 font-bold">-</button>
                         <span class="font-bold text-xs w-4 text-center">${item.qty}</span>
                         <button onclick="updateQty(${item.id}, 1)" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-blue-600 font-bold">+</button>
@@ -280,11 +302,7 @@
         }
 
         function updatePaymentButtons() {
-            const btns = {
-                'Cash': 'btn-cash',
-                'QRIS': 'btn-qr',
-                'SHOPEFOOD': 'btn-tf'
-            };
+            const btns = { 'Cash': 'btn-cash', 'QRIS': 'btn-qr', 'Shopefood': 'btn-sf' };
             Object.values(btns).forEach(id => {
                 document.getElementById(id).className = "pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition";
             });
@@ -298,11 +316,12 @@
                 id: Date.now(),
                 date: new Date().toISOString(),
                 total: cart.reduce((sum, item) => sum + (item.price * item.qty), 0),
-                method: selectedPayment
+                method: selectedPayment,
+                items: [...cart]
             };
             orderHistory.push(order);
             localStorage.setItem('pos_history', JSON.stringify(orderHistory));
-            alert('Transaksi Berhasil Disimpan!');
+            alert('Pembayaran Berhasil!');
             cart = [];
             closeCheckout();
             updateCartUI();
@@ -317,12 +336,45 @@
             const todayOrders = orderHistory.filter(o => new Date(o.date).toLocaleDateString() === today);
             document.getElementById('today-count').innerText = todayOrders.length;
 
+            // Render 5 Transaksi Terakhir
             const historyList = document.getElementById('order-history-list');
             historyList.innerHTML = orderHistory.slice(-5).reverse().map(o => `
                 <tr class="text-sm">
                     <td class="py-4 text-slate-400 font-medium">${new Date(o.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
                     <td class="py-4 font-bold text-slate-700">${o.method}</td>
                     <td class="py-4 text-right font-black text-blue-600">Rp ${o.total.toLocaleString()}</td>
+                </tr>
+            `).join('');
+
+            // Render Rekap Item Terjual
+            renderItemRecap(todayOrders);
+        }
+
+        function renderItemRecap(todayOrders) {
+            const recap = {};
+            todayOrders.forEach(order => {
+                order.items.forEach(item => {
+                    if (recap[item.name]) {
+                        recap[item.name].qty += item.qty;
+                        recap[item.name].total += (item.price * item.qty);
+                    } else {
+                        recap[item.name] = { qty: item.qty, total: (item.price * item.qty) };
+                    }
+                });
+            });
+
+            const recapList = document.getElementById('item-recap-list');
+            const items = Object.entries(recap);
+            if(items.length === 0) {
+                recapList.innerHTML = `<tr><td colspan="3" class="py-6 text-center text-slate-400 italic">Belum ada item terjual hari ini</td></tr>`;
+                return;
+            }
+
+            recapList.innerHTML = items.map(([name, data]) => `
+                <tr class="text-sm">
+                    <td class="py-4 font-bold text-slate-700">${name}</td>
+                    <td class="py-4 text-center font-bold text-slate-500">${data.qty}</td>
+                    <td class="py-4 text-right font-black text-blue-600">Rp ${data.total.toLocaleString()}</td>
                 </tr>
             `).join('');
         }
@@ -340,43 +392,61 @@
             const id = parseInt(document.getElementById('edit-select').value);
             const newName = document.getElementById('edit-name').value;
             const newPrice = parseInt(document.getElementById('edit-price').value);
-
             const index = products.findIndex(p => p.id === id);
             if (index !== -1) {
                 if (newName) products[index].name = newName;
                 if (newPrice) products[index].price = newPrice;
-                
                 localStorage.setItem('pos_products', JSON.stringify(products));
-                alert('Produk berhasil diperbarui!');
+                alert('Produk diperbarui!');
                 renderCatalog();
                 renderAdminTools();
             }
         }
 
+        // --- PDF EXPORTS ---
         function downloadPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            doc.setFont("helvetica", "bold");
-            doc.text("LAPORAN PENJUALAN OKTSHOP", 14, 20);
-            doc.setFontSize(10);
-            doc.setFont("helvetica", "normal");
-            doc.text(`Periode Laporan: ${new Date().toLocaleDateString('id-ID')}`, 14, 28);
-            
-            const tableData = orderHistory.map(o => [
-                new Date(o.date).toLocaleString('id-ID'),
-                o.method,
-                `Rp ${o.total.toLocaleString()}`
-            ]);
+            doc.text("LAPORAN TRANSAKSI OKTSHOP", 14, 20);
+            const tableData = orderHistory.map(o => [new Date(o.date).toLocaleString(), o.method, `Rp ${o.total.toLocaleString()}`]);
+            doc.autoTable({ head: [['Waktu', 'Metode', 'Total']], body: tableData, startY: 30 });
+            doc.save(`Laporan-Transaksi-${Date.now()}.pdf`);
+        }
 
+        function downloadItemRecapPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const today = new Date().toLocaleDateString();
+            const todayOrders = orderHistory.filter(o => new Date(o.date).toLocaleDateString() === today);
+            
+            const recap = {};
+            todayOrders.forEach(order => {
+                order.items.forEach(item => {
+                    if (recap[item.name]) {
+                        recap[item.name].qty += item.qty;
+                        recap[item.name].total += (item.price * item.qty);
+                    } else {
+                        recap[item.name] = { qty: item.qty, total: (item.price * item.qty) };
+                    }
+                });
+            });
+
+            doc.setFontSize(16);
+            doc.text("REKAP PRODUK TERJUAL HARI INI", 14, 20);
+            doc.setFontSize(10);
+            doc.text(`Tanggal: ${new Date().toLocaleDateString('id-ID')}`, 14, 28);
+
+            const tableData = Object.entries(recap).map(([name, data]) => [name, data.qty, `Rp ${data.total.toLocaleString()}`]);
+            
             doc.autoTable({
-                head: [['Waktu Transaksi', 'Metode', 'Total Harga']],
+                head: [['Nama Produk', 'Jumlah Terjual', 'Subtotal']],
                 body: tableData,
                 startY: 35,
                 theme: 'grid',
-                headStyles: { fillColor: [30, 41, 59], fontStyle: 'bold' },
+                headStyles: { fillColor: [37, 99, 235] }
             });
 
-            doc.save(`Laporan-OKTSHOP-${Date.now()}.pdf`);
+            doc.save(`Rekap-Item-Hari-Ini-${Date.now()}.pdf`);
         }
 
         init();
