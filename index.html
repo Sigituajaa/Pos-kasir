@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS KASIR - OKTSHOP</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- jsPDF & autoTable for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen pb-24">
+
+    <!-- HEADER -->
+    <header class="bg-white shadow-sm sticky top-0 z-50 px-4 py-3">
+        <div class="flex items-center justify-between max-w-6xl mx-auto">
+            <button onclick="showPage('admin')" class="text-blue-600 font-semibold flex items-center gap-1">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                <span class="hidden md:inline">Admin Panel</span>
+            </button>
+            <h1 class="text-xl font-bold text-gray-800 text-center flex-1">
+                POS KASIR <span class="text-blue-600 text-sm block md:inline md:ml-1">by OKTSHOP</span>
+            </h1>
+            <div class="w-20 md:w-24"></div> <!-- Spacer -->
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT (KATALOG) -->
+    <main id="page-home" class="max-w-6xl mx-auto p-4">
+        <div id="catalog-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <!-- 12 Katalog akan di-render di sini via JS -->
+        </div>
+    </main>
+
+    <!-- ADMIN PANEL PAGE (HIDDEN BY DEFAULT) -->
+    <main id="page-admin" class="max-w-4xl mx-auto p-4 hidden">
+        <button onclick="showPage('home')" class="mb-4 text-gray-600 flex items-center gap-1">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i> Kembali ke Beranda
+        </button>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Update Katalog -->
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                    <i data-lucide="edit-3"></i> Update Katalog
+                </h2>
+                <div class="space-y-4">
+                    <select id="edit-select" class="w-full p-2 border rounded-lg"></select>
+                    <input id="edit-name" type="text" placeholder="Nama Baru" class="w-full p-2 border rounded-lg">
+                    <input id="edit-price" type="number" placeholder="Harga Baru" class="w-full p-2 border rounded-lg">
+                    <button onclick="updateProduct()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold">Simpan Perubahan</button>
+                </div>
+            </div>
+
+            <!-- Rekap & Pesanan -->
+            <div class="bg-white p-6 rounded-xl shadow-sm">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                    <i data-lucide="file-text"></i> Laporan
+                </h2>
+                <div class="space-y-3">
+                    <div class="p-4 bg-blue-50 rounded-lg">
+                        <p class="text-sm text-blue-600">Pesanan Hari Ini</p>
+                        <p id="today-count" class="text-2xl font-bold">0</p>
+                    </div>
+                    <button onclick="downloadPDF()" class="w-full border-2 border-blue-600 text-blue-600 py-2 rounded-lg font-bold flex items-center justify-center gap-2">
+                        <i data-lucide="download" class="w-4 h-4"></i> Download Rekap 30 Hari (PDF)
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-6 bg-white p-6 rounded-xl shadow-sm">
+            <h2 class="text-lg font-bold mb-4">Riwayat Transaksi Terakhir</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b">
+                            <th class="py-2">Waktu</th>
+                            <th class="py-2">Metode</th>
+                            <th class="py-2 text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="order-history-list"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- BOTTOM BAR (MENU BAYAR) -->
+    <div id="bottom-bar" class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <i data-lucide="shopping-cart" class="w-8 h-8 text-blue-600"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">0</span>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 font-semibold uppercase">Total Tagihan</p>
+                    <p id="total-price" class="text-xl font-bold text-gray-800">Rp 0</p>
+                </div>
+            </div>
+            <button onclick="openCheckout()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold transition-all transform active:scale-95">
+                BAYAR
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL CHECKOUT -->
+    <div id="modal-checkout" class="fixed inset-0 bg-black/50 z-[60] flex items-end md:items-center justify-center hidden p-4">
+        <div class="bg-white w-full max-w-md rounded-t-2xl md:rounded-2xl overflow-hidden animate-slide-up">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 class="font-bold text-lg">Detail Pesanan</h3>
+                <button onclick="closeCheckout()"><i data-lucide="x"></i></button>
+            </div>
+            
+            <div id="cart-items" class="max-h-60 overflow-y-auto p-4 space-y-4">
+                <!-- Cart items list -->
+            </div>
+
+            <div class="p-4 bg-gray-50 space-y-4">
+                <p class="font-semibold text-sm">Pilih Metode Pembayaran:</p>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="setPayment('Cash')" class="pay-btn border-2 p-2 rounded-lg text-xs font-bold text-center" id="btn-cash">Cash</button>
+                    <button onclick="setPayment('QR/Transfer')" class="pay-btn border-2 p-2 rounded-lg text-xs font-bold text-center" id="btn-qr">QR/Transfer</button>
+                    <button onclick="setPayment('ShopeeFood')" class="pay-btn border-2 p-2 rounded-lg text-xs font-bold text-center" id="btn-shopee">ShopeeFood</button>
+                </div>
+                <button onclick="processOrder()" id="confirm-pay" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold mt-2 disabled:bg-gray-300" disabled>
+                    Konfirmasi Pembayaran
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA & STATE ---
+        let products = JSON.parse(localStorage.getItem('pos_products')) || [
+            { id: 1, name: 'Es Kopi Susu', price: 15000, img: '☕' },
+            { id: 2, name: 'Americano', price: 12000, img: '☕' },
+            { id: 3, name: 'Caramel Latte', price: 18000, img: '☕' },
+            { id: 4, name: 'Croissant Strawberry', price: 20000, img: '🥐' },
+            { id: 5, name: 'Kentang Goreng', price: 12000, img: '🍟' },
+            { id: 6, name: 'Nasi Goreng OKT', price: 25000, img: '🍳' },
+            { id: 7, name: 'Es Teh Manis', price: 5000, img: '🍹' },
+            { id: 8, name: 'Matcha Latte', price: 18000, img: '🍵' },
+            { id: 9, name: 'Roti Bakar', price: 15000, img: '🍞' },
+            { id: 10, name: 'Burger Sapi', price: 22000, img: '🍔' },
+            { id: 11, name: 'Ayam Geprek', price: 18000, img: '🍗' },
+            { id: 12, name: 'Dimsum (4pcs)', price: 15000, img: '🥟' },
+        ];
+
+        let cart = [];
+        let selectedPayment = '';
+        let orderHistory = JSON.parse(localStorage.getItem('pos_history')) || [];
+
+        // --- CORE FUNCTIONS ---
+        function init() {
+            renderCatalog();
+            renderAdminTools();
+            updateCartUI();
+            lucide.createIcons();
+        }
+
+        function showPage(page) {
+            document.getElementById('page-home').classList.toggle('hidden', page !== 'home');
+            document.getElementById('bottom-bar').classList.toggle('hidden', page !== 'home');
+            document.getElementById('page-admin').classList.toggle('hidden', page !== 'admin');
+            if(page === 'admin') renderAdminTools();
+        }
+
+        function renderCatalog() {
+            const grid = document.getElementById('catalog-grid');
+            grid.innerHTML = products.map(p => `
+                <div onclick="addToCart(${p.id})" class="bg-white p-4 rounded-2xl shadow-sm border border-transparent hover:border-blue-500 transition-all cursor-pointer active:scale-95">
+                    <div class="text-4xl mb-2">${p.img}</div>
+                    <h3 class="font-bold text-gray-800 text-sm truncate">${p.name}</h3>
+                    <p class="text-blue-600 font-bold">Rp ${p.price.toLocaleString()}</p>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.qty++;
+            } else {
+                cart.push({ ...product, qty: 1 });
+            }
+            updateCartUI();
+        }
+
+        function updateQty(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                item.qty += delta;
+                if (item.qty <= 0) {
+                    cart = cart.filter(i => i.id !== id);
+                }
+            }
+            updateCartUI();
+            renderCartItems();
+        }
+
+        function updateCartUI() {
+            const count = cart.reduce((sum, item) => sum + item.qty, 0);
+            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            document.getElementById('cart-count').innerText = count;
+            document.getElementById('total-price').innerText = `Rp ${total.toLocaleString()}`;
+        }
+
+        function openCheckout() {
+            if (cart.length === 0) return alert('Keranjang masih kosong!');
+            document.getElementById('modal-checkout').classList.remove('hidden');
+            renderCartItems();
+        }
+
+        function closeCheckout() {
+            document.getElementById('modal-checkout').classList.add('hidden');
+            selectedPayment = '';
+            updatePaymentButtons();
+        }
+
+        function renderCartItems() {
+            const container = document.getElementById('cart-items');
+            container.innerHTML = cart.map(item => `
+                <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                    <div>
+                        <p class="font-bold text-sm">${item.name}</p>
+                        <p class="text-xs text-gray-500">Rp ${item.price.toLocaleString()} x ${item.qty}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="updateQty(${item.id}, -1)" class="w-8 h-8 bg-red-100 text-red-600 rounded-full flex items-center justify-center font-bold">-</button>
+                        <span class="font-bold">${item.qty}</span>
+                        <button onclick="addToCart(${item.id}); renderCartItems();" class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">+</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function setPayment(method) {
+            selectedPayment = method;
+            updatePaymentButtons();
+            document.getElementById('confirm-pay').disabled = false;
+        }
+
+        function updatePaymentButtons() {
+            const methods = { 'Cash': 'btn-cash', 'QR/Transfer': 'btn-qr', 'ShopeeFood': 'btn-shopee' };
+            Object.keys(methods).forEach(m => {
+                const el = document.getElementById(methods[m]);
+                if (m === selectedPayment) {
+                    el.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+                } else {
+                    el.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
+                }
+            });
+        }
+
+        function processOrder() {
+            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const order = {
+                id: Date.now(),
+                date: new Date().toISOString(),
+                items: [...cart],
+                total: total,
+                method: selectedPayment
+            };
+            
+            orderHistory.push(order);
+            localStorage.setItem('pos_history', JSON.stringify(orderHistory));
+            
+            alert('Pembayaran Berhasil!');
+            cart = [];
+            closeCheckout();
+            updateCartUI();
+        }
+
+        // --- ADMIN FUNCTIONS ---
+        function renderAdminTools() {
+            const select = document.getElementById('edit-select');
+            select.innerHTML = products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            
+            const today = new Date().toLocaleDateString();
+            const todayOrders = orderHistory.filter(o => new Date(o.date).toLocaleDateString() === today);
+            document.getElementById('today-count').innerText = todayOrders.length;
+
+            const historyList = document.getElementById('order-history-list');
+            historyList.innerHTML = orderHistory.slice(-5).reverse().map(o => `
+                <tr class="border-b text-sm">
+                    <td class="py-2">${new Date(o.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                    <td class="py-2">${o.method}</td>
+                    <td class="py-2 text-right font-bold">Rp ${o.total.toLocaleString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateProduct() {
+            const id = parseInt(document.getElementById('edit-select').value);
+            const newName = document.getElementById('edit-name').value;
+            const newPrice = parseInt(document.getElementById('edit-price').value);
+
+            const index = products.findIndex(p => p.id === id);
+            if (newName) products[index].name = newName;
+            if (newPrice) products[index].price = newPrice;
+
+            localStorage.setItem('pos_products', JSON.stringify(products));
+            alert('Katalog diperbarui!');
+            renderCatalog();
+            renderAdminTools();
+        }
+
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.text("LAPORAN PENJUALAN 30 HARI - OKTSHOP", 14, 15);
+            
+            const tableData = orderHistory.map(o => [
+                new Date(o.date).toLocaleDateString('id-ID'),
+                o.method,
+                `Rp ${o.total.toLocaleString()}`
+            ]);
+
+            doc.autoTable({
+                head: [['Tanggal', 'Metode', 'Total']],
+                body: tableData,
+                startY: 25,
+            });
+
+            doc.save("rekap-penjualan-oktshop.pdf");
+        }
+
+        // Jalankan inisialisasi
+        init();
+    </script>
+</body>
+</html>
