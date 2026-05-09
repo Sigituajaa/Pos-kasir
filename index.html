@@ -150,7 +150,7 @@
                     <div class="grid grid-cols-3 gap-3">
                         <button onclick="setPayment('Cash')" class="pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition hover:border-blue-500" id="btn-cash">CASH</button>
                         <button onclick="setPayment('QRIS')" class="pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition hover:border-blue-500" id="btn-qr">QRIS</button>
-                        <button onclick="setPayment('Transfer')" class="pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition hover:border-blue-500" id="btn-tf">TRANSFER</button>
+                        <button onclick="setPayment('Shopefood')" class="pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition hover:border-blue-500" id="btn-tf">TRANSFER</button>
                     </div>
                 </div>
                 <button onclick="processOrder()" id="confirm-pay" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-[1.5rem] font-bold disabled:bg-slate-300 disabled:cursor-not-allowed transition shadow-xl shadow-blue-100" disabled>
@@ -163,18 +163,18 @@
     <script>
         // --- DATA PRODUK (Tanpa Gambar) ---
         let products = JSON.parse(localStorage.getItem('pos_products')) || [
-            { id: 1, name: 'Es Kopi Susu OKT', price: 15000 },
-            { id: 2, name: 'Americano Hot/Ice', price: 12000 },
-            { id: 3, name: 'Caramel Macchiato', price: 18000 },
-            { id: 4, name: 'Butter Croissant', price: 20000 },
-            { id: 5, name: 'French Fries Large', price: 12000 },
-            { id: 6, name: 'Nasi Goreng Spesial', price: 25000 },
-            { id: 7, name: 'Es Teh Manis', price: 5000 },
-            { id: 8, name: 'Matcha Premium', price: 18000 },
-            { id: 9, name: 'Roti Bakar Coklat', price: 15000 },
-            { id: 10, name: 'Beef Burger Cheese', price: 22000 },
-            { id: 11, name: 'Ayam Geprek Nasi', price: 18000 },
-            { id: 12, name: 'Dimsum Ayam (4pcs)', price: 15000 },
+            { id: 1, name: 'Boci Urat', price: 12000 },
+            { id: 2, name: 'Boci Ayam', price: 10000 },
+            { id: 3, name: 'Boci Tetelan', price: 10000 },
+            { id: 4, name: 'Cireng Kuah Keju', price: 10000 },
+            { id: 5, name: 'Cireng 1pcs', price: 2000 },
+            { id: 6, name: 'Otak-otak Bojot', price: 5000 },
+            { id: 7, name: 'Basreng Bojot', price: 5000 },
+            { id: 8, name: 'Basreng/Otak-otak 1pcs', price: 1000 },
+            { id: 9, name: 'Sosis/Dumpling', price: 2000 },
+            { id: 10, name: 'Es Jasjus/Teajus', price: 2000 },
+            { id: 11, name: 'Es Gooday', price: 5000 },
+            { id: 12, name: 'Es Pop Ice', price: 3000 },
         ];
 
         let cart = [];
