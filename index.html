@@ -150,7 +150,7 @@
                     <div class="grid grid-cols-3 gap-3">
                         <button onclick="setPayment('Cash')" class="pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition hover:border-blue-500" id="btn-cash">CASH</button>
                         <button onclick="setPayment('QRIS')" class="pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition hover:border-blue-500" id="btn-qr">QRIS</button>
-                        <button onclick="setPayment('Shopefood')" class="pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition hover:border-blue-500" id="btn-tf">TRANSFER</button>
+                        <button onclick="setPayment('Shopefood')" class="pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition hover:border-blue-500" id="btn-tf">SHOPEFOOD</button>
                     </div>
                 </div>
                 <button onclick="processOrder()" id="confirm-pay" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-[1.5rem] font-bold disabled:bg-slate-300 disabled:cursor-not-allowed transition shadow-xl shadow-blue-100" disabled>
@@ -283,7 +283,7 @@
             const btns = {
                 'Cash': 'btn-cash',
                 'QRIS': 'btn-qr',
-                'Transfer': 'btn-tf'
+                'SHOPEFOOD': 'btn-tf'
             };
             Object.values(btns).forEach(id => {
                 document.getElementById(id).className = "pay-btn border-2 border-slate-200 bg-white py-4 rounded-2xl text-[11px] font-bold text-center transition";
