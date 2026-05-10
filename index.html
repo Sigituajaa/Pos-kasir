@@ -21,7 +21,6 @@
     <!-- HEADER -->
     <header class="bg-white border-b sticky top-0 z-50 px-4 py-4 shadow-sm">
         <div class="flex items-center justify-between max-w-6xl mx-auto">
-            <!-- Link Admin sekarang memicu Login -->
             <button onclick="openLoginModal()" class="text-blue-600 font-semibold flex items-center gap-2 hover:bg-blue-50 p-2 rounded-xl transition">
                 <i data-lucide="lock" class="w-5 h-5"></i>
                 <span class="hidden md:inline text-sm">Admin Panel</span>
@@ -84,7 +83,6 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- 1. Manage Products -->
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
                 <h2 class="text-lg font-bold mb-5 flex items-center gap-2 text-slate-800">
                     <i data-lucide="edit" class="text-blue-600 w-5 h-5"></i> Produk
@@ -108,7 +106,6 @@
                 </div>
             </div>
 
-            <!-- 2. Transaction Summary -->
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
                 <h2 class="text-lg font-bold mb-5 flex items-center gap-2 text-slate-800">
                     <i data-lucide="history" class="text-emerald-600 w-5 h-5"></i> History
@@ -124,7 +121,6 @@
                 </div>
             </div>
 
-            <!-- 3. Item Sales Report -->
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
                 <h2 class="text-lg font-bold mb-5 flex items-center gap-2 text-slate-800">
                     <i data-lucide="bar-chart-3" class="text-orange-600 w-5 h-5"></i> Penjualan Item
@@ -135,7 +131,6 @@
                 </button>
             </div>
 
-            <!-- 4. Daily Omzet -->
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
                 <h2 class="text-lg font-bold mb-5 flex items-center gap-2 text-slate-800">
                     <i data-lucide="calendar" class="text-red-600 w-5 h-5"></i> Omzet 30 Hari
@@ -188,20 +183,32 @@
         </div>
     </div>
 
-    <!-- MODAL SUKSES -->
+    <!-- MODAL SUKSES & INPUT WA -->
     <div id="modal-success" class="fixed inset-0 bg-slate-900/80 z-[70] flex items-center justify-center hidden p-4 backdrop-blur-md">
-        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 text-center shadow-2xl">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 text-center shadow-2xl relative">
+            <!-- Tombol Close di Pojok Kanan Atas -->
+            <button onclick="finishTransaction()" class="absolute top-6 right-6 p-2 hover:bg-slate-100 rounded-full text-slate-400 transition">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+
             <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i data-lucide="check-circle-2" class="w-12 h-12"></i>
             </div>
-            <h2 class="text-2xl font-black text-slate-900 mb-2">Berhasil!</h2>
-            <p class="text-slate-500 text-sm mb-8">Transaksi telah dicatat.</p>
+            <h2 class="text-2xl font-black text-slate-900 mb-2">Pesanan Selesai!</h2>
+            <p class="text-slate-500 text-sm mb-6">Transaksi berhasil dicatat.</p>
+            
+            <!-- Input WhatsApp (Opsional) -->
+            <div class="mb-6 text-left">
+                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-2">Kirim Struk ke WhatsApp (Opsional)</label>
+                <input id="wa-number" type="number" class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 mt-1 font-bold" placeholder="Contoh: 08123456xxx">
+            </div>
+
             <div class="space-y-3">
-                <button onclick="printReceipt()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-black transition">
-                    <i data-lucide="printer" class="w-5 h-5"></i> Cetak Struk (PDF)
-                </button>
                 <button onclick="sendWhatsApp()" class="w-full bg-emerald-500 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-emerald-600 transition">
                     <i data-lucide="message-circle" class="w-5 h-5"></i> Kirim WhatsApp
+                </button>
+                <button onclick="printReceipt()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-black transition">
+                    <i data-lucide="printer" class="w-5 h-5"></i> Cetak Struk (PDF)
                 </button>
                 <button onclick="finishTransaction()" class="w-full bg-slate-100 text-slate-600 py-4 rounded-2xl font-bold hover:bg-slate-200 transition mt-4">
                     Selesai & Reset
@@ -215,7 +222,6 @@
         const STORE_ADDR = "Jl. Sokhari No.26, RT.1/RW.2, Cipare, Kec. Serang, Kota Serang, Banten 42117";
         const STORE_PHONE = "0895-3454-52412";
         
-        // ADMIN CREDENTIALS
         const ADMIN_USER = "Admin123";
         const ADMIN_PASS = "Oktshop17";
 
@@ -248,27 +254,21 @@
             lucide.createIcons();
         }
 
-        // --- LOGIN LOGIC ---
         function openLoginModal() {
             document.getElementById('login-user').value = "";
             document.getElementById('login-pass').value = "";
             document.getElementById('modal-login').classList.remove('hidden');
         }
 
-        function closeLoginModal() {
-            document.getElementById('modal-login').classList.add('hidden');
-        }
+        function closeLoginModal() { document.getElementById('modal-login').classList.add('hidden'); }
 
         function checkLogin() {
             const user = document.getElementById('login-user').value;
             const pass = document.getElementById('login-pass').value;
-
             if(user === ADMIN_USER && pass === ADMIN_PASS) {
                 closeLoginModal();
                 showPage('admin');
-            } else {
-                alert("ID User atau Password Salah!");
-            }
+            } else { alert("ID User atau Password Salah!"); }
         }
 
         function showPage(page) {
@@ -279,7 +279,6 @@
             lucide.createIcons();
         }
 
-        // --- CATALOG & CART ---
         function renderCatalog() {
             const grid = document.getElementById('catalog-grid');
             grid.innerHTML = products.map(p => `
@@ -372,6 +371,8 @@
             localStorage.setItem('pos_history', JSON.stringify(orderHistory));
             nextReceiptNum++;
             localStorage.setItem('pos_receipt_counter', nextReceiptNum);
+            
+            document.getElementById('wa-number').value = ""; // Reset input nomor HP
             document.getElementById('modal-checkout').classList.add('hidden');
             document.getElementById('modal-success').classList.remove('hidden');
             lucide.createIcons();
@@ -384,105 +385,23 @@
             document.getElementById('modal-success').classList.add('hidden');
         }
 
-        // --- REPORTS & ADMIN TOOLS ---
-        function getDailySalesSummary() {
-            const summary = {};
-            orderHistory.forEach(order => {
-                const dateKey = order.date.split(',')[0].trim();
-                summary[dateKey] = (summary[dateKey] || 0) + order.total;
-            });
-            return Object.keys(summary).map(date => ({ date, total: summary[date] }))
-            .sort((a, b) => b.date.split('/').reverse().join('').localeCompare(a.date.split('/').reverse().join('')))
-            .slice(0, 30);
-        }
-
-        function renderAdminTools() {
-            const select = document.getElementById('edit-select');
-            select.innerHTML = products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-            loadProductData();
-            document.getElementById('today-count').innerText = orderHistory.length;
+        function sendWhatsApp() {
+            if(!lastOrder) return;
+            const phoneInput = document.getElementById('wa-number').value;
+            let phone = phoneInput.replace(/[^0-9]/g, "");
             
-            const itemSalesList = document.getElementById('item-sales-list');
-            const itemData = getItemSalesData();
-            itemSalesList.innerHTML = itemData.map(i => `
-                <div class="flex justify-between items-center text-[11px] p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <span class="font-bold text-slate-700">${i.name}</span>
-                    <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-md font-black">${i.qty}</span>
-                </div>
-            `).join('') || '<p class="text-xs text-slate-400">Belum ada data</p>';
-
-            const dailyList = document.getElementById('daily-sales-list');
-            const dailyData = getDailySalesSummary();
-            dailyList.innerHTML = dailyData.map(d => `
-                <div class="flex justify-between items-center text-[11px] p-3 bg-red-50 rounded-xl border border-red-100">
-                    <span class="font-bold text-slate-700">${d.date}</span>
-                    <span class="font-black text-red-600">Rp ${d.total.toLocaleString()}</span>
-                </div>
-            `).join('') || '<p class="text-xs text-slate-400">Belum ada data</p>';
-        }
-
-        function getItemSalesData() {
-            const summary = {};
-            orderHistory.forEach(order => {
-                order.items.forEach(item => {
-                    if (!summary[item.name]) summary[item.name] = { qty: 0, revenue: 0 };
-                    summary[item.name].qty += item.qty;
-                    summary[item.name].revenue += (item.qty * item.price);
-                });
+            // Format nomor ke format internasional 62
+            if (phone.startsWith("0")) phone = "62" + phone.slice(1);
+            
+            let text = `*STRUK PEMBAYARAN ${STORE_NAME}*%0A------------------------------------------%0A`;
+            text += `No: ${lastOrder.id}%0ATgl: ${lastOrder.date}%0A------------------------------------------%0A`;
+            lastOrder.items.forEach(item => {
+                text += `*${item.name}*%0A${item.qty} x Rp ${item.price.toLocaleString()} = Rp ${(item.qty * item.price).toLocaleString()}%0A`;
             });
-            return Object.keys(summary).map(name => ({ name, qty: summary[name].qty, revenue: summary[name].revenue }))
-            .sort((a, b) => b.qty - a.qty);
-        }
-
-        function loadProductData() {
-            const id = parseInt(document.getElementById('edit-select').value);
-            const product = products.find(p => p.id === id);
-            if(product) {
-                document.getElementById('edit-name').value = product.name;
-                document.getElementById('edit-price').value = product.price;
-            }
-        }
-
-        function updateProduct() {
-            const id = parseInt(document.getElementById('edit-select').value);
-            const index = products.findIndex(p => p.id === id);
-            if (index !== -1) {
-                products[index].name = document.getElementById('edit-name').value;
-                products[index].price = parseInt(document.getElementById('edit-price').value);
-                localStorage.setItem('pos_products', JSON.stringify(products));
-                alert('Produk diperbarui!');
-                renderCatalog();
-            }
-        }
-
-        // --- PDF EXPORTS ---
-        function downloadPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.text(`HISTORY SEMUA TRANSAKSI - ${STORE_NAME}`, 14, 20);
-            const data = orderHistory.map(o => [o.id, o.date, o.method, `Rp ${o.total.toLocaleString()}`]);
-            doc.autoTable({ head: [['No', 'Waktu', 'Metode', 'Total']], body: data, startY: 30 });
-            doc.save("History_Transaksi.pdf");
-        }
-
-        function downloadItemReportPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const data = getItemSalesData();
-            doc.text(`LAPORAN PENJUALAN PER ITEM - ${STORE_NAME}`, 14, 20);
-            const tableRows = data.map(item => [item.name, item.qty, `Rp ${item.revenue.toLocaleString()}`]);
-            doc.autoTable({ head: [['Nama Produk', 'Jumlah', 'Total Omzet']], body: tableRows, startY: 30 });
-            doc.save("Laporan_Per_Item.pdf");
-        }
-
-        function downloadDailyReportPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const data = getDailySalesSummary();
-            doc.text(`LAPORAN OMZET HARIAN (30 HARI) - ${STORE_NAME}`, 14, 20);
-            const tableRows = data.map(item => [item.date, `Rp ${item.total.toLocaleString()}`]);
-            doc.autoTable({ head: [['Tanggal', 'Total Omzet']], body: tableRows, startY: 30 });
-            doc.save("Laporan_Omzet_Harian.pdf");
+            text += `------------------------------------------%0A*TOTAL: Rp ${lastOrder.total.toLocaleString()}*%0A------------------------------------------%0ATerima kasih atas kunjungannya!`;
+            
+            const waUrl = phone ? `https://wa.me/${phone}?text=${text}` : `https://wa.me/?text=${text}`;
+            window.open(waUrl, '_blank');
         }
 
         function printReceipt() {
@@ -520,15 +439,100 @@
             doc.save(`Struk_${lastOrder.id}.pdf`);
         }
 
-        function sendWhatsApp() {
-            if(!lastOrder) return;
-            let text = `*STRUK PEMBAYARAN ${STORE_NAME}*%0A------------------------------------------%0A`;
-            text += `No: ${lastOrder.id}%0ATgl: ${lastOrder.date}%0A------------------------------------------%0A`;
-            lastOrder.items.forEach(item => {
-                text += `*${item.name}*%0A${item.qty} x Rp ${item.price.toLocaleString()} = Rp ${(item.qty * item.price).toLocaleString()}%0A`;
+        // --- ADMIN HELPERS ---
+        function getItemSalesData() {
+            const summary = {};
+            orderHistory.forEach(order => {
+                order.items.forEach(item => {
+                    if (!summary[item.name]) summary[item.name] = { qty: 0, revenue: 0 };
+                    summary[item.name].qty += item.qty;
+                    summary[item.name].revenue += (item.qty * item.price);
+                });
             });
-            text += `------------------------------------------%0A*TOTAL: Rp ${lastOrder.total.toLocaleString()}*%0A------------------------------------------%0ATerima kasih atas kunjungannya!`;
-            window.open(`https://wa.me/?text=${text}`, '_blank');
+            return Object.keys(summary).map(name => ({ name, qty: summary[name].qty, revenue: summary[name].revenue }))
+            .sort((a, b) => b.qty - a.qty);
+        }
+
+        function getDailySalesSummary() {
+            const summary = {};
+            orderHistory.forEach(order => {
+                const dateKey = order.date.split(',')[0].trim();
+                summary[dateKey] = (summary[dateKey] || 0) + order.total;
+            });
+            return Object.keys(summary).map(date => ({ date, total: summary[date] }))
+            .sort((a, b) => b.date.split('/').reverse().join('').localeCompare(a.date.split('/').reverse().join('')))
+            .slice(0, 30);
+        }
+
+        function renderAdminTools() {
+            const select = document.getElementById('edit-select');
+            select.innerHTML = products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+            loadProductData();
+            document.getElementById('today-count').innerText = orderHistory.length;
+            
+            const itemSalesList = document.getElementById('item-sales-list');
+            itemSalesList.innerHTML = getItemSalesData().map(i => `
+                <div class="flex justify-between items-center text-[11px] p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <span class="font-bold text-slate-700">${i.name}</span>
+                    <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-md font-black">${i.qty}</span>
+                </div>
+            `).join('') || '<p class="text-xs text-slate-400">Belum ada data</p>';
+
+            const dailyList = document.getElementById('daily-sales-list');
+            dailyList.innerHTML = getDailySalesSummary().map(d => `
+                <div class="flex justify-between items-center text-[11px] p-3 bg-red-50 rounded-xl border border-red-100">
+                    <span class="font-bold text-slate-700">${d.date}</span>
+                    <span class="font-black text-red-600">Rp ${d.total.toLocaleString()}</span>
+                </div>
+            `).join('') || '<p class="text-xs text-slate-400">Belum ada data</p>';
+        }
+
+        function loadProductData() {
+            const id = parseInt(document.getElementById('edit-select').value);
+            const product = products.find(p => p.id === id);
+            if(product) {
+                document.getElementById('edit-name').value = product.name;
+                document.getElementById('edit-price').value = product.price;
+            }
+        }
+
+        function updateProduct() {
+            const id = parseInt(document.getElementById('edit-select').value);
+            const index = products.findIndex(p => p.id === id);
+            if (index !== -1) {
+                products[index].name = document.getElementById('edit-name').value;
+                products[index].price = parseInt(document.getElementById('edit-price').value);
+                localStorage.setItem('pos_products', JSON.stringify(products));
+                alert('Produk diperbarui!');
+                renderCatalog();
+            }
+        }
+
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text(`HISTORY TRANSAKSI - ${STORE_NAME}`, 14, 20);
+            const data = orderHistory.map(o => [o.id, o.date, o.method, `Rp ${o.total.toLocaleString()}`]);
+            doc.autoTable({ head: [['No', 'Waktu', 'Metode', 'Total']], body: data, startY: 30 });
+            doc.save("History_Transaksi.pdf");
+        }
+
+        function downloadItemReportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text(`LAPORAN PER ITEM - ${STORE_NAME}`, 14, 20);
+            const data = getItemSalesData().map(item => [item.name, item.qty, `Rp ${item.revenue.toLocaleString()}`]);
+            doc.autoTable({ head: [['Produk', 'Qty', 'Revenue']], body: data, startY: 30 });
+            doc.save("Laporan_Per_Item.pdf");
+        }
+
+        function downloadDailyReportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text(`LAPORAN OMZET HARIAN - ${STORE_NAME}`, 14, 20);
+            const data = getDailySalesSummary().map(item => [item.date, `Rp ${item.total.toLocaleString()}`]);
+            doc.autoTable({ head: [['Tanggal', 'Omzet']], body: data, startY: 30 });
+            doc.save("Laporan_Harian.pdf");
         }
 
         init();
