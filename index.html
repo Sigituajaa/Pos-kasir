@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POS KASIR - OKTSHOP</title>
+    <title>POS KASIR - OKTSHOP17</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -14,8 +14,6 @@
         .product-card { transition: all 0.2s ease; border: 1px solid #dbeafe; }
         .product-card:active { transform: scale(0.95); }
         .blue-gradient { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); }
-        /* Style khusus modal agar scroll halus */
-        .modal-open { overflow: hidden; }
     </style>
 </head>
 <body class="min-h-screen pb-32">
@@ -28,7 +26,7 @@
                 <span class="hidden md:inline text-sm">Admin Panel</span>
             </button>
             <div class="text-center">
-                <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">OKTSHOP</h1>
+                <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">OKTSHOP17</h1>
                 <p class="text-[10px] font-bold text-blue-600 tracking-[0.2em] uppercase">Digital Point of Sale</p>
             </div>
             <div class="w-20 md:w-24 flex justify-end">
@@ -45,19 +43,17 @@
             <h2 class="text-2xl font-extrabold mb-1">Menu Utama</h2>
             <p class="text-blue-100 text-sm font-medium opacity-90">Klik produk untuk memproses pesanan</p>
         </div>
-
-        <div id="catalog-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <!-- Render via JS -->
-        </div>
+        <div id="catalog-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
     </main>
 
     <!-- ADMIN PANEL PAGE -->
-    <main id="page-admin" class="max-w-4xl mx-auto p-4 hidden">
+    <main id="page-admin" class="max-w-6xl mx-auto p-4 hidden">
         <button onclick="showPage('home')" class="mb-6 text-blue-600 flex items-center gap-2 hover:underline font-bold">
             <i data-lucide="arrow-left" class="w-5 h-5"></i> Kembali ke Kasir
         </button>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Manage Products -->
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
                 <h2 class="text-lg font-bold mb-5 flex items-center gap-2">
                     <i data-lucide="edit" class="text-blue-600 w-5 h-5"></i> Kelola Produk
@@ -65,37 +61,47 @@
                 <div class="space-y-4">
                     <div>
                         <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Pilih Produk</label>
-                        <select id="edit-select" onchange="loadProductData()" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 font-semibold"></select>
+                        <select id="edit-select" onchange="loadProductData()" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 font-semibold"></select>
                     </div>
                     <div>
                         <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Nama Baru</label>
-                        <input id="edit-name" type="text" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                        <input id="edit-name" type="text" class="w-full p-3 border border-slate-200 rounded-xl outline-none">
                     </div>
                     <div>
                         <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Harga Baru (Rp)</label>
-                        <input id="edit-price" type="number" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-mono">
+                        <input id="edit-price" type="number" class="w-full p-3 border border-slate-200 rounded-xl outline-none font-mono">
                     </div>
-                    <button onclick="updateProduct()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold transition mt-2 shadow-lg shadow-blue-100">
+                    <button onclick="updateProduct()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-100 transition">
                         Simpan Perubahan
                     </button>
                 </div>
             </div>
 
-            <div class="space-y-6">
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                    <h2 class="text-lg font-bold mb-5 flex items-center gap-2">
-                        <i data-lucide="pie-chart" class="text-emerald-600 w-5 h-5"></i> Laporan Penjualan
-                    </h2>
-                    <div class="space-y-3">
-                        <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100 flex justify-between items-center">
-                            <span class="text-xs font-bold text-blue-700 uppercase">Transaksi Hari Ini</span>
-                            <span id="today-count" class="text-2xl font-black text-blue-800">0</span>
-                        </div>
-                        <button onclick="downloadPDF()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-black transition shadow-lg shadow-slate-200">
-                            <i data-lucide="file-text" class="w-5 h-5"></i> Cetak Laporan Transaksi
-                        </button>
+            <!-- Transaction Report -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                <h2 class="text-lg font-bold mb-5 flex items-center gap-2">
+                    <i data-lucide="pie-chart" class="text-emerald-600 w-5 h-5"></i> Laporan Transaksi
+                </h2>
+                <div class="space-y-3">
+                    <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100 flex justify-between items-center">
+                        <span class="text-xs font-bold text-blue-700 uppercase">Total Transaksi</span>
+                        <span id="today-count" class="text-2xl font-black text-blue-800">0</span>
                     </div>
+                    <button onclick="downloadPDF()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-black transition">
+                        <i data-lucide="file-text" class="w-5 h-5"></i> Cetak Semua Transaksi
+                    </button>
                 </div>
+            </div>
+
+            <!-- Item Sales Report -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                <h2 class="text-lg font-bold mb-5 flex items-center gap-2">
+                    <i data-lucide="bar-chart-3" class="text-orange-600 w-5 h-5"></i> Penjualan Per Item
+                </h2>
+                <div id="item-sales-list" class="space-y-2 mb-4 max-h-48 overflow-y-auto"></div>
+                <button onclick="downloadItemReportPDF()" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-orange-700 transition">
+                    <i data-lucide="download" class="w-5 h-5"></i> Download Laporan Item
+                </button>
             </div>
         </div>
     </main>
@@ -113,7 +119,7 @@
                     <p id="total-price" class="text-xl font-black text-slate-900">Rp 0</p>
                 </div>
             </div>
-            <button onclick="openCheckout()" class="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 rounded-2xl font-bold transition-all transform active:scale-95 shadow-xl shadow-blue-200 text-center text-lg">
+            <button onclick="openCheckout()" class="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 rounded-2xl font-bold shadow-xl shadow-blue-200 text-center text-lg">
                 BAYAR
             </button>
         </div>
@@ -140,15 +146,14 @@
         </div>
     </div>
 
-    <!-- MODAL SUKSES & STRUK -->
+    <!-- MODAL SUKSES -->
     <div id="modal-success" class="fixed inset-0 bg-slate-900/80 z-[70] flex items-center justify-center hidden p-4 backdrop-blur-md">
         <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 text-center shadow-2xl">
             <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i data-lucide="check-circle-2" class="w-12 h-12"></i>
             </div>
-            <h2 class="text-2xl font-black text-slate-900 mb-2">Pembayaran Berhasil!</h2>
-            <p class="text-slate-500 text-sm mb-8">Silahkan pilih metode untuk memberikan struk kepada pelanggan.</p>
-            
+            <h2 class="text-2xl font-black text-slate-900 mb-2">Berhasil!</h2>
+            <p class="text-slate-500 text-sm mb-8">Transaksi telah dicatat.</p>
             <div class="space-y-3">
                 <button onclick="printReceipt()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-black transition">
                     <i data-lucide="printer" class="w-5 h-5"></i> Cetak Struk (PDF)
@@ -164,25 +169,33 @@
     </div>
 
     <script>
+        const STORE_NAME = "OKTSHOP17";
+        const STORE_ADDR = "Jl. Sokhari No.26, RT.1/RW.2, Cipare, Kec. Serang, Kota Serang, Banten 42117";
+        const STORE_PHONE = "0895-3454-52412";
+
+        // CATALOG UPDATED TO 14 ITEMS
         let products = JSON.parse(localStorage.getItem('pos_products')) || [
             { id: 1, name: 'Boci Urat', price: 12000 },
             { id: 2, name: 'Boci Ayam', price: 10000 },
             { id: 3, name: 'Boci Tetelan', price: 10000 },
-            { id: 4, name: 'Cireng Kuah Keju', price: 10000 },
-            { id: 5, name: 'Cireng 1pcs', price: 2000 },
-            { id: 6, name: 'Otak-otak Bojot', price: 5000 },
-            { id: 7, name: 'Basreng Bojot', price: 5000 },
-            { id: 8, name: 'Basreng/Otak-otak 1pcs', price: 1000 },
-            { id: 9, name: 'Sosis/Dumpling', price: 2000 },
-            { id: 10, name: 'Es Jasjus/Teajus', price: 2000 },
-            { id: 11, name: 'Es Gooday', price: 5000 },
+            { id: 4, name: 'Cireng Kuah Keju 4Pcs', price: 10000 },
+            { id: 5, name: 'Cireng 1Pcs', price: 2000 },
+            { id: 6, name: 'Otak-otak Bojot 3Pcs', price: 5000 },
+            { id: 7, name: 'Basreng Bojot (3Pcs)', price: 5000 },
+            { id: 8, name: 'Basreng/Otak-otak 1Pcs', price: 1000 },
+            { id: 9, name: 'Sosis/Dumpling 1Pcs', price: 2000 },
+            { id: 10, name: 'Dimsum 1Pcs', price: 3000 },
+            { id: 11, name: 'Dimsum Chili oil 3Pcs', price: 10000 },
             { id: 12, name: 'Es Pop Ice', price: 3000 },
+            { id: 13, name: 'Es Jasjus/Teajus', price: 2000 }, // NEW
+            { id: 14, name: 'Es Kopi Gooday', price: 5000 },       // NEW
         ];
 
         let cart = [];
         let selectedPayment = '';
         let lastOrder = null;
         let orderHistory = JSON.parse(localStorage.getItem('pos_history')) || [];
+        let nextReceiptNum = parseInt(localStorage.getItem('pos_receipt_counter')) || 1;
 
         function init() {
             renderCatalog();
@@ -278,19 +291,20 @@
         }
 
         function processOrder() {
+            const receiptID = nextReceiptNum.toString().padStart(5, '0');
             lastOrder = {
-                id: 'OKT' + Date.now().toString().slice(-6),
+                id: receiptID,
                 date: new Date().toLocaleString('id-ID'),
                 total: cart.reduce((sum, item) => sum + (item.price * item.qty), 0),
                 method: selectedPayment,
-                items: [...cart]
+                items: JSON.parse(JSON.stringify(cart))
             };
             orderHistory.push(lastOrder);
             localStorage.setItem('pos_history', JSON.stringify(orderHistory));
-            
+            nextReceiptNum++;
+            localStorage.setItem('pos_receipt_counter', nextReceiptNum);
             document.getElementById('modal-checkout').classList.add('hidden');
             document.getElementById('modal-success').classList.remove('hidden');
-            lucide.createIcons();
         }
 
         function finishTransaction() {
@@ -300,29 +314,21 @@
             document.getElementById('modal-success').classList.add('hidden');
         }
 
-        // --- FUNGSI CETAK STRUK PDF ---
         function printReceipt() {
             if(!lastOrder) return;
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({
-                unit: 'mm',
-                format: [80, 150] // Ukuran struk thermal 80mm
-            });
-
+            const doc = new jsPDF({ unit: 'mm', format: [80, 160] });
             doc.setFont("helvetica", "bold");
             doc.setFontSize(14);
-            doc.text("OKTSHOP", 40, 10, { align: "center" });
-            
+            doc.text(STORE_NAME, 40, 10, { align: "center" });
             doc.setFontSize(8);
             doc.setFont("helvetica", "normal");
             doc.text("Digital Point of Sale", 40, 14, { align: "center" });
-            doc.text("--------------------------------------------------", 40, 18, { align: "center" });
-            
-            doc.text(`No. Struk: ${lastOrder.id}`, 5, 22);
-            doc.text(`Tanggal  : ${lastOrder.date}`, 5, 26);
-            doc.text(`Metode   : ${lastOrder.method}`, 5, 30);
-            doc.text("--------------------------------------------------", 40, 34, { align: "center" });
-
+            doc.text("-".repeat(45), 40, 18, { align: "center" });
+            doc.text(`Tgl : ${lastOrder.date}`, 5, 22);
+            doc.text(`No. Struk : ${lastOrder.id}`, 5, 26);
+            doc.text(`Metode : ${lastOrder.method}`, 5, 30);
+            doc.text("-".repeat(45), 40, 34, { align: "center" });
             let y = 38;
             lastOrder.items.forEach(item => {
                 doc.setFont("helvetica", "bold");
@@ -333,53 +339,65 @@
                 doc.text(`Rp ${subtotal}`, 75, y + 4, { align: "right" });
                 y += 10;
             });
-
-            doc.text("--------------------------------------------------", 40, y, { align: "center" });
+            doc.text("-".repeat(45), 40, y, { align: "center" });
             doc.setFontSize(10);
             doc.setFont("helvetica", "bold");
             doc.text("TOTAL BAYAR", 5, y + 6);
             doc.text(`Rp ${lastOrder.total.toLocaleString()}`, 75, y + 6, { align: "right" });
-
-            doc.setFontSize(8);
+            y += 16;
+            doc.setFontSize(7);
+            doc.setFont("helvetica", "normal");
+            const splitAddr = doc.splitTextToSize(STORE_ADDR, 70);
+            doc.text(splitAddr, 40, y, { align: "center" });
+            y += (splitAddr.length * 3.5);
+            doc.text(`Telp: ${STORE_PHONE}`, 40, y, { align: "center" });
+            y += 5;
             doc.setFont("helvetica", "italic");
-            doc.text("Terima kasih sudah berbelanja!", 40, y + 14, { align: "center" });
-
+            doc.text("Terima kasih atas kunjungannya!", 40, y, { align: "center" });
             doc.save(`Struk_${lastOrder.id}.pdf`);
         }
 
-        // --- FUNGSI KIRIM WHATSAPP ---
-        function sendWhatsApp() {
-            if(!lastOrder) return;
-            
-            let text = `*STRUK PEMBAYARAN OKTSHOP*%0A`;
-            text += `------------------------------------------%0A`;
-            text += `No: ${lastOrder.id}%0A`;
-            text += `Tgl: ${lastOrder.date}%0A`;
-            text += `Metode: ${lastOrder.method}%0A`;
-            text += `------------------------------------------%0A`;
-            
-            lastOrder.items.forEach(item => {
-                text += `*${item.name}*%0A`;
-                text += `${item.qty} x Rp ${item.price.toLocaleString()} = Rp ${(item.qty * item.price).toLocaleString()}%0A`;
+        function getItemSalesData() {
+            const summary = {};
+            orderHistory.forEach(order => {
+                order.items.forEach(item => {
+                    if (!summary[item.name]) summary[item.name] = { qty: 0, revenue: 0 };
+                    summary[item.name].qty += item.qty;
+                    summary[item.name].revenue += (item.qty * item.price);
+                });
             });
-            
-            text += `------------------------------------------%0A`;
-            text += `*TOTAL: Rp ${lastOrder.total.toLocaleString()}*%0A`;
-            text += `------------------------------------------%0A`;
-            text += `Terima kasih atas kunjungannya!`;
-
-            window.open(`https://wa.me/?text=${text}`, '_blank');
+            return Object.keys(summary).map(name => ({
+                name, qty: summary[name].qty, revenue: summary[name].revenue
+            })).sort((a, b) => b.qty - a.qty);
         }
 
-        // --- ADMIN LOGIC ---
+        function downloadItemReportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const data = getItemSalesData();
+            doc.setFontSize(16);
+            doc.text(`LAPORAN PENJUALAN PER ITEM - ${STORE_NAME}`, 14, 20);
+            const tableRows = data.map(item => [item.name, item.qty, `Rp ${item.revenue.toLocaleString()}`]);
+            doc.autoTable({
+                head: [['Nama Produk', 'Jumlah Terjual', 'Total Pendapatan']],
+                body: tableRows, startY: 35, theme: 'grid', headStyles: { fillStyle: [30, 64, 175] }
+            });
+            doc.save("Laporan_Per_Item.pdf");
+        }
+
         function renderAdminTools() {
             const select = document.getElementById('edit-select');
             select.innerHTML = products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
             loadProductData();
-            
-            const today = new Date().toLocaleDateString('id-ID');
-            const todayOrders = orderHistory.filter(o => o.date.includes(today));
-            document.getElementById('today-count').innerText = todayOrders.length;
+            document.getElementById('today-count').innerText = orderHistory.length;
+            const itemSalesList = document.getElementById('item-sales-list');
+            const itemData = getItemSalesData();
+            itemSalesList.innerHTML = itemData.map(i => `
+                <div class="flex justify-between items-center text-xs p-2 bg-slate-50 rounded-lg">
+                    <span class="font-bold text-slate-700">${i.name}</span>
+                    <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-md font-black">${i.qty} x</span>
+                </div>
+            `).join('') || '<p class="text-xs text-slate-400">Belum ada data</p>';
         }
 
         function loadProductData() {
@@ -406,10 +424,28 @@
         function downloadPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            doc.text("LAPORAN TRANSAKSI OKTSHOP", 14, 20);
-            const data = orderHistory.map(o => [o.date, o.method, `Rp ${o.total.toLocaleString()}`]);
-            doc.autoTable({ head: [['Waktu', 'Metode', 'Total']], body: data, startY: 30 });
-            doc.save("Laporan_Penjualan.pdf");
+            doc.text(`LAPORAN SEMUA TRANSAKSI - ${STORE_NAME}`, 14, 20);
+            const data = orderHistory.map(o => [o.id, o.date, o.method, `Rp ${o.total.toLocaleString()}`]);
+            doc.autoTable({ head: [['No. Struk', 'Waktu', 'Metode', 'Total']], body: data, startY: 30 });
+            doc.save("Laporan_Transaksi.pdf");
+        }
+
+        function sendWhatsApp() {
+            if(!lastOrder) return;
+            let text = `*STRUK PEMBAYARAN ${STORE_NAME}*%0A`;
+            text += `------------------------------------------%0A`;
+            text += `No: ${lastOrder.id}%0A`;
+            text += `Tgl: ${lastOrder.date}%0A`;
+            text += `------------------------------------------%0A`;
+            lastOrder.items.forEach(item => {
+                text += `*${item.name}*%0A`;
+                text += `${item.qty} x Rp ${item.price.toLocaleString()} = Rp ${(item.qty * item.price).toLocaleString()}%0A`;
+            });
+            text += `------------------------------------------%0A`;
+            text += `*TOTAL: Rp ${lastOrder.total.toLocaleString()}*%0A`;
+            text += `------------------------------------------%0A`;
+            text += `Terima kasih atas kunjungannya!`;
+            window.open(`https://wa.me/?text=${text}`, '_blank');
         }
 
         init();
