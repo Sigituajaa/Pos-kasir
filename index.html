@@ -21,8 +21,9 @@
     <!-- HEADER -->
     <header class="bg-white border-b sticky top-0 z-50 px-4 py-4 shadow-sm">
         <div class="flex items-center justify-between max-w-6xl mx-auto">
-            <button onclick="showPage('admin')" class="text-blue-600 font-semibold flex items-center gap-2 hover:bg-blue-50 p-2 rounded-xl transition">
-                <i data-lucide="settings" class="w-5 h-5"></i>
+            <!-- Link Admin sekarang memicu Login -->
+            <button onclick="openLoginModal()" class="text-blue-600 font-semibold flex items-center gap-2 hover:bg-blue-50 p-2 rounded-xl transition">
+                <i data-lucide="lock" class="w-5 h-5"></i>
                 <span class="hidden md:inline text-sm">Admin Panel</span>
             </button>
             <div class="text-center">
@@ -37,6 +38,33 @@
         </div>
     </header>
 
+    <!-- MODAL LOGIN ADMIN -->
+    <div id="modal-login" class="fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center hidden p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="shield-check" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800">Login Admin</h3>
+                <p class="text-slate-500 text-sm">Masukkan kredensial untuk akses</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-2">ID User</label>
+                    <input id="login-user" type="text" class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="ID User">
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-2">Password</label>
+                    <input id="login-pass" type="password" class="w-full p-4 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500" placeholder="••••••••">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button onclick="closeLoginModal()" class="flex-1 bg-slate-100 text-slate-600 py-4 rounded-2xl font-bold hover:bg-slate-200 transition">Batal</button>
+                    <button onclick="checkLogin()" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition">Masuk</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MAIN CONTENT (KATALOG) -->
     <main id="page-home" class="max-w-6xl mx-auto p-4">
         <div class="blue-gradient mb-8 p-8 rounded-[2.5rem] text-white shadow-xl shadow-blue-200">
@@ -48,78 +76,79 @@
 
     <!-- ADMIN PANEL PAGE -->
     <main id="page-admin" class="max-w-7xl mx-auto p-4 hidden">
-        <button onclick="showPage('home')" class="mb-6 text-blue-600 flex items-center gap-2 hover:underline font-bold">
-            <i data-lucide="arrow-left" class="w-5 h-5"></i> Kembali ke Kasir
-        </button>
+        <div class="flex justify-between items-center mb-6">
+            <button onclick="showPage('home')" class="text-blue-600 flex items-center gap-2 hover:underline font-bold">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i> Kembali ke Kasir
+            </button>
+            <span class="bg-slate-100 text-slate-500 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest">Administrator Mode</span>
+        </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <!-- 1. Manage Products -->
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                <h2 class="text-lg font-bold mb-5 flex items-center gap-2">
-                    <i data-lucide="edit" class="text-blue-600 w-5 h-5"></i> Kelola Produk
+                <h2 class="text-lg font-bold mb-5 flex items-center gap-2 text-slate-800">
+                    <i data-lucide="edit" class="text-blue-600 w-5 h-5"></i> Produk
                 </h2>
                 <div class="space-y-4">
                     <div>
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Pilih Produk</label>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pilih Produk</label>
                         <select id="edit-select" onchange="loadProductData()" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 font-semibold"></select>
                     </div>
                     <div>
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Nama Baru</label>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Baru</label>
                         <input id="edit-name" type="text" class="w-full p-3 border border-slate-200 rounded-xl outline-none">
                     </div>
                     <div>
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Harga Baru (Rp)</label>
-                        <input id="edit-price" type="number" class="w-full p-3 border border-slate-200 rounded-xl outline-none font-mono">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Harga Baru (Rp)</label>
+                        <input id="edit-price" type="number" class="w-full p-3 border border-slate-200 rounded-xl outline-none font-mono text-blue-600 font-bold">
                     </div>
                     <button onclick="updateProduct()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-100 transition">
-                        Simpan Perubahan
+                        Update Produk
                     </button>
                 </div>
             </div>
 
             <!-- 2. Transaction Summary -->
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                <h2 class="text-lg font-bold mb-5 flex items-center gap-2">
-                    <i data-lucide="pie-chart" class="text-emerald-600 w-5 h-5"></i> Semua Transaksi
+                <h2 class="text-lg font-bold mb-5 flex items-center gap-2 text-slate-800">
+                    <i data-lucide="history" class="text-emerald-600 w-5 h-5"></i> History
                 </h2>
                 <div class="space-y-3">
-                    <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100 flex justify-between items-center">
-                        <span class="text-xs font-bold text-blue-700 uppercase">Total Transaksi</span>
-                        <span id="today-count" class="text-2xl font-black text-blue-800">0</span>
+                    <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex justify-between items-center">
+                        <span class="text-xs font-bold text-emerald-700 uppercase">Total Transaksi</span>
+                        <span id="today-count" class="text-2xl font-black text-emerald-800">0</span>
                     </div>
                     <button onclick="downloadPDF()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-black transition">
-                        <i data-lucide="file-text" class="w-5 h-5"></i> Cetak Semua History
+                        <i data-lucide="file-text" class="w-5 h-5"></i> Cetak History
                     </button>
                 </div>
             </div>
 
             <!-- 3. Item Sales Report -->
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                <h2 class="text-lg font-bold mb-5 flex items-center gap-2">
+                <h2 class="text-lg font-bold mb-5 flex items-center gap-2 text-slate-800">
                     <i data-lucide="bar-chart-3" class="text-orange-600 w-5 h-5"></i> Penjualan Item
                 </h2>
-                <div id="item-sales-list" class="space-y-2 mb-4 max-h-48 overflow-y-auto"></div>
+                <div id="item-sales-list" class="space-y-2 mb-4 max-h-48 overflow-y-auto pr-1"></div>
                 <button onclick="downloadItemReportPDF()" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-orange-700 transition">
-                    <i data-lucide="download" class="w-5 h-5"></i> Download Laporan Item
+                    <i data-lucide="download" class="w-5 h-5"></i> Download PDF
                 </button>
             </div>
 
-            <!-- 4. NEW: Daily Sales (30 Days) -->
+            <!-- 4. Daily Omzet -->
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                <h2 class="text-lg font-bold mb-5 flex items-center gap-2">
+                <h2 class="text-lg font-bold mb-5 flex items-center gap-2 text-slate-800">
                     <i data-lucide="calendar" class="text-red-600 w-5 h-5"></i> Omzet 30 Hari
                 </h2>
-                <div id="daily-sales-list" class="space-y-2 mb-4 max-h-48 overflow-y-auto"></div>
+                <div id="daily-sales-list" class="space-y-2 mb-4 max-h-48 overflow-y-auto pr-1"></div>
                 <button onclick="downloadDailyReportPDF()" class="w-full bg-red-600 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-red-700 transition">
-                    <i data-lucide="file-down" class="w-5 h-5"></i> Download Laporan Harian
+                    <i data-lucide="file-down" class="w-5 h-5"></i> Download PDF
                 </button>
             </div>
         </div>
     </main>
 
-    <!-- BOTTOM BAR, MODAL CHECKOUT, MODAL SUCCESS - (SAMA SEPERTI SEBELUMNYA) -->
-    <!-- ... bagian ini tetap sama untuk menghemat ruang, fungsi utamanya ada di script ... -->
-
+    <!-- BOTTOM BAR -->
     <div id="bottom-bar" class="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t p-4 pb-6 shadow-[0_-10px_25px_rgba(0,0,0,0.05)] z-40">
         <div class="max-w-6xl mx-auto flex items-center justify-between gap-4">
             <div class="flex items-center gap-4">
@@ -138,6 +167,7 @@
         </div>
     </div>
 
+    <!-- MODAL PEMBAYARAN -->
     <div id="modal-checkout" class="fixed inset-0 bg-slate-900/60 z-[60] flex items-end md:items-center justify-center hidden p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-md rounded-t-[2.5rem] md:rounded-[2.5rem] overflow-hidden shadow-2xl">
             <div class="p-6 border-b flex justify-between items-center">
@@ -158,6 +188,7 @@
         </div>
     </div>
 
+    <!-- MODAL SUKSES -->
     <div id="modal-success" class="fixed inset-0 bg-slate-900/80 z-[70] flex items-center justify-center hidden p-4 backdrop-blur-md">
         <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 text-center shadow-2xl">
             <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -183,6 +214,10 @@
         const STORE_NAME = "OKTSHOP17";
         const STORE_ADDR = "Jl. Sokhari No.26, RT.1/RW.2, Cipare, Kec. Serang, Kota Serang, Banten 42117";
         const STORE_PHONE = "0895-3454-52412";
+        
+        // ADMIN CREDENTIALS
+        const ADMIN_USER = "Admin123";
+        const ADMIN_PASS = "Oktshop17";
 
         let products = JSON.parse(localStorage.getItem('pos_products')) || [
             { id: 1, name: 'Boci Urat', price: 12000 },
@@ -213,6 +248,29 @@
             lucide.createIcons();
         }
 
+        // --- LOGIN LOGIC ---
+        function openLoginModal() {
+            document.getElementById('login-user').value = "";
+            document.getElementById('login-pass').value = "";
+            document.getElementById('modal-login').classList.remove('hidden');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('modal-login').classList.add('hidden');
+        }
+
+        function checkLogin() {
+            const user = document.getElementById('login-user').value;
+            const pass = document.getElementById('login-pass').value;
+
+            if(user === ADMIN_USER && pass === ADMIN_PASS) {
+                closeLoginModal();
+                showPage('admin');
+            } else {
+                alert("ID User atau Password Salah!");
+            }
+        }
+
         function showPage(page) {
             document.getElementById('page-home').classList.toggle('hidden', page !== 'home');
             document.getElementById('bottom-bar').classList.toggle('hidden', page !== 'home');
@@ -221,7 +279,7 @@
             lucide.createIcons();
         }
 
-        // --- CATALOG & CART LOGIC ---
+        // --- CATALOG & CART ---
         function renderCatalog() {
             const grid = document.getElementById('catalog-grid');
             grid.innerHTML = products.map(p => `
@@ -316,6 +374,7 @@
             localStorage.setItem('pos_receipt_counter', nextReceiptNum);
             document.getElementById('modal-checkout').classList.add('hidden');
             document.getElementById('modal-success').classList.remove('hidden');
+            lucide.createIcons();
         }
 
         function finishTransaction() {
@@ -325,79 +384,43 @@
             document.getElementById('modal-success').classList.add('hidden');
         }
 
-        // --- NEW: DAILY SALES DATA (30 DAYS) ---
+        // --- REPORTS & ADMIN TOOLS ---
         function getDailySalesSummary() {
             const summary = {};
             orderHistory.forEach(order => {
-                // Ambil bagian tanggal saja dari "DD/MM/YYYY, HH:mm:ss"
                 const dateKey = order.date.split(',')[0].trim();
                 summary[dateKey] = (summary[dateKey] || 0) + order.total;
             });
-
-            // Convert ke array dan urutkan tanggal terbaru di atas
-            return Object.keys(summary).map(date => ({
-                date,
-                total: summary[date]
-            })).sort((a, b) => {
-                const dateA = a.date.split('/').reverse().join('');
-                const dateB = b.date.split('/').reverse().join('');
-                return dateB.localeCompare(dateA);
-            }).slice(0, 30); // Ambil 30 hari terakhir
+            return Object.keys(summary).map(date => ({ date, total: summary[date] }))
+            .sort((a, b) => b.date.split('/').reverse().join('').localeCompare(a.date.split('/').reverse().join('')))
+            .slice(0, 30);
         }
 
-        function downloadDailyReportPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const data = getDailySalesSummary();
-            
-            doc.setFontSize(16);
-            doc.text(`LAPORAN OMZET HARIAN (30 HARI) - ${STORE_NAME}`, 14, 20);
-            
-            const tableRows = data.map(item => [item.date, `Rp ${item.total.toLocaleString()}`]);
-            
-            doc.autoTable({
-                head: [['Tanggal', 'Total Omzet']],
-                body: tableRows,
-                startY: 30,
-                theme: 'grid',
-                headStyles: { fillStyle: [220, 38, 38] } // Warna merah
-            });
-
-            doc.save("Laporan_Omzet_Harian.pdf");
-        }
-
-        // --- ADMIN PANEL RENDERING ---
         function renderAdminTools() {
-            // Load Select Produk
             const select = document.getElementById('edit-select');
             select.innerHTML = products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
             loadProductData();
-
-            // Total History
             document.getElementById('today-count').innerText = orderHistory.length;
-
-            // Render Item Sales
+            
             const itemSalesList = document.getElementById('item-sales-list');
             const itemData = getItemSalesData();
             itemSalesList.innerHTML = itemData.map(i => `
-                <div class="flex justify-between items-center text-xs p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <div class="flex justify-between items-center text-[11px] p-3 bg-slate-50 rounded-xl border border-slate-100">
                     <span class="font-bold text-slate-700">${i.name}</span>
                     <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-md font-black">${i.qty}</span>
                 </div>
             `).join('') || '<p class="text-xs text-slate-400">Belum ada data</p>';
 
-            // Render Daily Sales (UI)
             const dailyList = document.getElementById('daily-sales-list');
             const dailyData = getDailySalesSummary();
             dailyList.innerHTML = dailyData.map(d => `
-                <div class="flex justify-between items-center text-xs p-3 bg-red-50 rounded-xl border border-red-100">
+                <div class="flex justify-between items-center text-[11px] p-3 bg-red-50 rounded-xl border border-red-100">
                     <span class="font-bold text-slate-700">${d.date}</span>
                     <span class="font-black text-red-600">Rp ${d.total.toLocaleString()}</span>
                 </div>
             `).join('') || '<p class="text-xs text-slate-400">Belum ada data</p>';
         }
 
-        // --- EXISTING HELPER FUNCTIONS ---
         function getItemSalesData() {
             const summary = {};
             orderHistory.forEach(order => {
@@ -407,22 +430,8 @@
                     summary[item.name].revenue += (item.qty * item.price);
                 });
             });
-            return Object.keys(summary).map(name => ({
-                name, qty: summary[name].qty, revenue: summary[name].revenue
-            })).sort((a, b) => b.qty - a.qty);
-        }
-
-        function downloadItemReportPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const data = getItemSalesData();
-            doc.text(`LAPORAN PENJUALAN PER ITEM - ${STORE_NAME}`, 14, 20);
-            const tableRows = data.map(item => [item.name, item.qty, `Rp ${item.revenue.toLocaleString()}`]);
-            doc.autoTable({
-                head: [['Nama Produk', 'Jumlah', 'Total Pendapatan']],
-                body: tableRows, startY: 30, theme: 'grid'
-            });
-            doc.save("Laporan_Per_Item.pdf");
+            return Object.keys(summary).map(name => ({ name, qty: summary[name].qty, revenue: summary[name].revenue }))
+            .sort((a, b) => b.qty - a.qty);
         }
 
         function loadProductData() {
@@ -446,6 +455,7 @@
             }
         }
 
+        // --- PDF EXPORTS ---
         function downloadPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -453,6 +463,26 @@
             const data = orderHistory.map(o => [o.id, o.date, o.method, `Rp ${o.total.toLocaleString()}`]);
             doc.autoTable({ head: [['No', 'Waktu', 'Metode', 'Total']], body: data, startY: 30 });
             doc.save("History_Transaksi.pdf");
+        }
+
+        function downloadItemReportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const data = getItemSalesData();
+            doc.text(`LAPORAN PENJUALAN PER ITEM - ${STORE_NAME}`, 14, 20);
+            const tableRows = data.map(item => [item.name, item.qty, `Rp ${item.revenue.toLocaleString()}`]);
+            doc.autoTable({ head: [['Nama Produk', 'Jumlah', 'Total Omzet']], body: tableRows, startY: 30 });
+            doc.save("Laporan_Per_Item.pdf");
+        }
+
+        function downloadDailyReportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const data = getDailySalesSummary();
+            doc.text(`LAPORAN OMZET HARIAN (30 HARI) - ${STORE_NAME}`, 14, 20);
+            const tableRows = data.map(item => [item.date, `Rp ${item.total.toLocaleString()}`]);
+            doc.autoTable({ head: [['Tanggal', 'Total Omzet']], body: tableRows, startY: 30 });
+            doc.save("Laporan_Omzet_Harian.pdf");
         }
 
         function printReceipt() {
