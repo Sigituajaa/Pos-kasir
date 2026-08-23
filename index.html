@@ -72,12 +72,8 @@
             </div>
         </div>
 
-        <!-- TAB KATEGORI (lebih kecil) -->
-        <div class="flex gap-2 mb-8 overflow-x-auto pb-2 no-scrollbar">
-            <button onclick="filterCategory('Makanan')" id="tab-Makanan" class="category-tab whitespace-nowrap active">Makanan</button>
-            <button onclick="filterCategory('Minuman')" id="tab-Minuman" class="category-tab whitespace-nowrap">Minuman</button>
-            <button onclick="filterCategory('Keripik')" id="tab-Keripik" class="category-tab whitespace-nowrap">Keripik</button>
-        </div>
+        <!-- TAB KATEGORI (lebih kecil, dirender dinamis dari Pengaturan Kategori) -->
+        <div id="tabs-container" class="flex gap-2 mb-8 overflow-x-auto pb-2 no-scrollbar"></div>
 
         <div id="catalog-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
     </main>
@@ -103,11 +99,7 @@
                         <input id="add-name" type="text" class="w-full p-3 border border-slate-200 rounded-xl outline-none text-sm" placeholder="Nama Menu Baru">
                         <div class="grid grid-cols-2 gap-3">
                             <input id="add-price" type="number" class="w-full p-3 border border-slate-200 rounded-xl outline-none text-sm" placeholder="Harga (Rp)">
-                            <select id="add-category" class="w-full p-3 border border-slate-200 rounded-xl outline-none text-sm bg-slate-50">
-                                <option value="Makanan">Makanan</option>
-                                <option value="Minuman">Minuman</option>
-                                <option value="Keripik">Keripik</option>
-                            </select>
+                            <select id="add-category" class="w-full p-3 border border-slate-200 rounded-xl outline-none text-sm bg-slate-50"></select>
                         </div>
                         <button onclick="addProduct()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-bold transition">Tambah Ke Katalog</button>
                     </div>
@@ -123,11 +115,7 @@
                         <input id="edit-name" type="text" class="w-full p-3 border border-slate-200 rounded-xl outline-none text-sm">
                         <div class="grid grid-cols-2 gap-3">
                             <input id="edit-price" type="number" class="w-full p-3 border border-slate-200 rounded-xl outline-none text-sm font-bold text-blue-600">
-                            <select id="edit-category" class="w-full p-3 border border-slate-200 rounded-xl text-sm bg-slate-50">
-                                <option value="Makanan">Makanan</option>
-                                <option value="Minuman">Minuman</option>
-                                <option value="Keripik">Keripik</option>
-                            </select>
+                            <select id="edit-category" class="w-full p-3 border border-slate-200 rounded-xl text-sm bg-slate-50"></select>
                         </div>
                         <div class="flex gap-2">
                             <button onclick="deleteProduct()" class="bg-red-50 text-red-600 p-3 rounded-xl hover:bg-red-100 transition">
@@ -135,6 +123,18 @@
                             </button>
                             <button onclick="updateProduct()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition">Update Menu</button>
                         </div>
+                    </div>
+                </div>
+
+                <!-- PENGATURAN KATEGORI -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold mb-5 flex items-center gap-2 text-slate-800">
+                        <i data-lucide="tags" class="text-purple-600 w-5 h-5"></i> Pengaturan Kategori
+                    </h2>
+                    <div id="category-list" class="space-y-2 mb-4"></div>
+                    <div class="flex gap-2">
+                        <input id="new-category-name" type="text" class="flex-1 p-3 border border-slate-200 rounded-xl outline-none text-sm" placeholder="Nama Kategori Baru">
+                        <button onclick="addCategory()" class="bg-purple-600 text-white px-4 rounded-xl font-bold text-sm hover:bg-purple-700 transition">Tambah</button>
                     </div>
                 </div>
             </div>
