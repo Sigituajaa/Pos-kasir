@@ -9,10 +9,13 @@ let products = JSON.parse(localStorage.getItem('pos_products')) || [
     { id: 101, name: 'Keripik Kaca', price: 5000, category: 'Keripik' },
 ];
 
+// DATA KATEGORI (bisa ditambah/dihapus lewat Pengaturan Kategori di menu admin)
+let categories = JSON.parse(localStorage.getItem('pos_categories')) || ['Makanan', 'Minuman', 'Keripik'];
+
 let cart = [];
 let selectedPayment = '';
 let lastOrder = null;
-let currentCategory = 'Makanan';
+let currentCategory = categories[0] || '';
 let orderHistory = JSON.parse(localStorage.getItem('pos_history')) || [];
 let nextReceiptNum = parseInt(localStorage.getItem('pos_receipt_counter')) || 1;
 
@@ -20,7 +23,9 @@ let nextReceiptNum = parseInt(localStorage.getItem('pos_receipt_counter')) || 1;
 let pendingTransferRequest = JSON.parse(localStorage.getItem('pos_pending_transfer')) || false;
 
 function init() {
-    filterCategory('Makanan');
+    renderCategoryTabs();
+    renderCategorySelects();
+    filterCategory(currentCategory);
     updateCartUI();
     startClock();
     updateConnectionUI();
@@ -151,13 +156,21 @@ function registerServiceWorker() {
 }
 
 // --- KATEGORI & KATALOG ---
+function renderCategoryTabs() {
+    const container = document.getElementById('tabs-container');
+    if (!container) return;
+    container.innerHTML = categories.map(cat => `
+        <button onclick="filterCategory('${cat.replace(/'/g, "\\'")}')" id="tab-${cat}" class="category-tab whitespace-nowrap">${cat}</button>
+    `).join('');
+}
+
 function filterCategory(cat) {
     currentCategory = cat;
     document.querySelectorAll('.category-tab').forEach(btn => {
         btn.classList.remove('active');
     });
     const activeTab = document.getElementById(`tab-${cat}`);
-    activeTab.classList.add('active');
+    if (activeTab) activeTab.classList.add('active');
     renderCatalog();
 }
 
@@ -233,9 +246,73 @@ function saveAndRefresh() {
     renderAdminTools();
 }
 
+// --- PENGATURAN KATEGORI ---
+function renderCategorySelects() {
+    const options = categories.map(c => `<option value="${c}">${c}</option>`).join('');
+    const addSelect = document.getElementById('add-category');
+    const editSelect = document.getElementById('edit-category');
+    if (addSelect) addSelect.innerHTML = options;
+    if (editSelect) editSelect.innerHTML = options;
+}
+
+function renderCategoryList() {
+    const list = document.getElementById('category-list');
+    if (!list) return;
+    list.innerHTML = categories.map(cat => {
+        const count = products.filter(p => p.category === cat).length;
+        return `
+        <div class="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl p-3">
+            <div>
+                <span class="font-bold text-sm text-slate-800">${cat}</span>
+                <span class="text-[10px] text-slate-400 ml-2">${count} produk</span>
+            </div>
+            <button onclick="deleteCategory('${cat.replace(/'/g, "\\'")}')" class="text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+        </div>`;
+    }).join('') || '<p class="text-xs text-slate-400">Belum ada kategori</p>';
+    lucide.createIcons();
+}
+
+function addCategory() {
+    const input = document.getElementById('new-category-name');
+    const name = input.value.trim();
+    if (!name) return alert('Nama kategori tidak boleh kosong!');
+    if (categories.some(c => c.toLowerCase() === name.toLowerCase())) {
+        return alert('Kategori tersebut sudah ada!');
+    }
+    categories.push(name);
+    localStorage.setItem('pos_categories', JSON.stringify(categories));
+    input.value = '';
+    renderCategoryTabs();
+    renderCategorySelects();
+    renderCategoryList();
+    // Jika ini kategori pertama yang pernah ada, langsung tampilkan di katalog
+    if (categories.length === 1) filterCategory(name);
+}
+
+function deleteCategory(cat) {
+    const used = products.filter(p => p.category === cat).length;
+    if (used > 0) {
+        return alert(`Kategori "${cat}" masih dipakai oleh ${used} produk. Pindahkan atau hapus produk tersebut dulu sebelum menghapus kategorinya.`);
+    }
+    if (!confirm(`Hapus kategori "${cat}"?`)) return;
+    categories = categories.filter(c => c !== cat);
+    localStorage.setItem('pos_categories', JSON.stringify(categories));
+    renderCategoryTabs();
+    renderCategorySelects();
+    renderCategoryList();
+    // Kalau kategori yang sedang aktif dihapus, pindah ke kategori pertama yang tersisa
+    if (currentCategory === cat) {
+        filterCategory(categories[0] || '');
+    }
+}
+
 function renderAdminTools() {
     const select = document.getElementById('edit-select');
     select.innerHTML = products.map(p => `<option value="${p.id}">${p.name} [${p.category}]</option>`).join('');
+    renderCategorySelects();
+    renderCategoryList();
     loadProductData();
     document.getElementById('today-count').innerText = orderHistory.length;
 
