@@ -1626,7 +1626,10 @@ function renderScheduleTable() {
             const entry = scheduleCache[dateStr];
             const empEntry = entry && entry.employees ? entry.employees.find(e => e.id === emp.id) : null;
             const isToday = dateStr === todayStr;
-            cells += `<td onclick="openScheduleCellEditor('${emp.id}', '${dateStr}')" class="schedule-table-cell ${empEntry ? 'is-scheduled' : ''} ${isToday ? 'is-today' : ''}">${empEntry ? empEntry.jamMulai : ''}</td>`;
+            const isLibur = !!(empEntry && empEntry.libur); // NEW
+            const cellLabel = isLibur ? 'LIBUR' : (empEntry ? empEntry.jamMulai : ''); // NEW
+            const cellClass = isLibur ? 'is-libur' : (empEntry ? 'is-scheduled' : ''); // NEW (ganti baris di bawah)
+            cells += `<td onclick="openScheduleCellEditor('${emp.id}', '${dateStr}')" class="schedule-table-cell ${cellClass} ${isToday ? 'is-today' : ''}">${cellLabel}</td>`;
         }
         return `<tr><td class="schedule-table-name-col">${emp.name}</td>${cells}</tr>`;
     }).join('');
@@ -1647,10 +1650,17 @@ function openScheduleCellEditor(empId, dateStr) {
     const entry = scheduleCache[dateStr];
     const empEntry = entry && entry.employees ? entry.employees.find(e => e.id === empId) : null;
     const dateObj = new Date(dateStr + 'T00:00:00');
+    const isLibur = !!(empEntry && empEntry.libur); // NEW: cek status libur
 
     document.getElementById('schedule-cell-title').innerText = `${emp ? emp.name : ''} — ${dateObj.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}`;
-    document.getElementById('schedule-cell-jam-masuk').value = empEntry ? (empEntry.jamMulai || '') : '';
+    document.getElementById('schedule-cell-jam-masuk').value = (empEntry && !isLibur) ? (empEntry.jamMulai || '') : '';
+    document.getElementById('schedule-cell-jam-masuk').disabled = isLibur; // NEW: kunci input jam kalau lagi ditandai libur
     document.getElementById('schedule-cell-remove-btn').classList.toggle('hidden', !empEntry);
+
+    // NEW: tombol "Tandai Libur" ganti teks/warna sesuai status saat ini
+    const liburBtn = document.getElementById('schedule-cell-libur-btn');
+    liburBtn.innerText = isLibur ? 'Batal Libur' : 'Tandai Libur';
+    liburBtn.classList.toggle('is-active', isLibur);
 
     document.getElementById('modal-schedule-cell').classList.remove('hidden');
     document.getElementById('modal-schedule-cell').classList.add('flex');
@@ -1675,6 +1685,7 @@ function saveScheduleCellJamMasuk() {
     const empId = scheduleEditingEmployeeId;
     const dateStr = scheduleEditingDateStr;
     const existing = (scheduleCache[dateStr] && scheduleCache[dateStr].employees) || [];
+    // libur TIDAK disertakan lagi di sini -> otomatis batal libur begitu diisi jam masuk
     const updatedEmployees = [...existing.filter(e => e.id !== empId), { id: empId, jamMulai }];
 
     setDoc(doc(db, 'schedule', dateStr), { date: dateStr, employees: updatedEmployees }).then(() => {
@@ -1683,6 +1694,32 @@ function saveScheduleCellJamMasuk() {
     }).catch((err) => {
         console.error('Gagal simpan jadwal:', err);
         showToast('Gagal menyimpan jadwal ke server.', 'warn');
+    });
+}
+
+// NEW: tandai/batal-tandai satu sel sebagai LIBUR. Kalau ditandai libur, jamMulai dihapus
+// (libur = tidak kerja, jadi tidak relevan punya jam masuk).
+function toggleScheduleCellLibur() {
+    if (!scheduleEditingEmployeeId || !scheduleEditingDateStr) return;
+    if (!window.FB || !window.FB.ready) return showToast('Belum terhubung ke database.', 'warn');
+
+    const { db, doc, setDoc } = window.FB;
+    const empId = scheduleEditingEmployeeId;
+    const dateStr = scheduleEditingDateStr;
+    const existing = (scheduleCache[dateStr] && scheduleCache[dateStr].employees) || [];
+    const currentEntry = existing.find(e => e.id === empId);
+    const isCurrentlyLibur = !!(currentEntry && currentEntry.libur);
+
+    const updatedEmployees = isCurrentlyLibur
+        ? existing.filter(e => e.id !== empId) // batal libur -> hapus dari jadwal (kosong lagi)
+        : [...existing.filter(e => e.id !== empId), { id: empId, libur: true }]; // tandai libur
+
+    setDoc(doc(db, 'schedule', dateStr), { date: dateStr, employees: updatedEmployees }).then(() => {
+        showToast(isCurrentlyLibur ? 'Libur dibatalkan.' : 'Ditandai libur!', 'success');
+        closeScheduleCellEditor();
+    }).catch((err) => {
+        console.error('Gagal simpan status libur:', err);
+        showToast('Gagal menyimpan ke server.', 'warn');
     });
 }
 
@@ -2173,475 +2210,4 @@ function saveAttendanceRecord(type, employee) {
         showToast('Gagal menyimpan absen ke server.', 'warn');
     });
 
-    // Kalau overlay absen pulang sedang tampil untuk sesi yang sama, otomatis tutup juga
-    // supaya kasir tidak diminta absen dua kali setelah pakai tombol manual di header
-    if (attendanceOverlayShownType === type) hideAttendanceOverlay();
-}
-
-function recordAttendance() {
-    const type = attendanceOverlayShownType;
-    if (!type) return;
-    if (type === 'keluar') {
-        openConfirmKeluar(); // absen keluar cukup konfirmasi Ya/Tidak, tanpa QR
-    } else {
-        openEmployeePicker(type);
-    }
-}
-
-function formatDurationHM(msDuration) {
-    const totalMinutes = Math.floor(msDuration / 60000);
-    const h = Math.floor(totalMinutes / 60);
-    const m = totalMinutes % 60;
-    return `${h}j ${m}m`;
-}
-
-// --- POPUP ABSENSI (dibuka manual lewat tombol fingerprint di header, ATAU otomatis+wajib
-// oleh checkMandatoryMasukGate begitu app dibuka & belum absen masuk hari itu) ---
-function openAbsenPopup(mandatory) {
-    absenPopupMandatory = !!mandatory;
-    // Kalau ini pop-up WAJIB yang dipicu otomatis sementara Admin Panel lagi dibuka, jangan
-    // ditampilkan dulu — biar Admin Panel tidak ketutup. Popup manual (klik ikon fingerprint
-    // di header) tetap boleh muncul kapan saja.
-    if (mandatory && adminPanelOpen) return;
-    renderAbsenPopup();
-    const modal = document.getElementById('modal-absen-popup');
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-    document.getElementById('absen-popup-close-btn').classList.toggle('hidden', absenPopupMandatory);
-    lucide.createIcons();
-}
-
-// Dipanggil dari tombol X — kalau lagi wajib (belum absen masuk), tidak boleh ditutup manual
-function closeAbsenPopup() {
-    if (absenPopupMandatory) {
-        showToast('Wajib absen masuk dulu sebelum bisa mulai jualan.', 'warn');
-        return;
-    }
-    closeAbsenPopupForced();
-}
-
-// Versi internal tanpa guard, dipakai saat memang boleh/perlu ditutup secara terprogram
-// (absen masuk baru saja berhasil, atau lanjut ke langkah pilih karyawan)
-function closeAbsenPopupForced() {
-    const modal = document.getElementById('modal-absen-popup');
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-}
-
-function recordAttendanceManual(type) {
-    if (type === 'keluar') {
-        openConfirmKeluar(); // absen keluar cukup konfirmasi Ya/Tidak, tanpa QR (popup ditutup di confirmKeluarYes)
-        return;
-    }
-    closeAbsenPopupForced();
-    openEmployeePicker(type);
-}
-
-function renderAbsenPopup() {
-    const record = getOrCreateTodayAttendance();
-    const dateStr = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-    document.getElementById('absen-popup-date').innerText = dateStr;
-
-    const body = document.getElementById('absen-popup-body');
-    const masukStr = record.masukTime ? new Date(record.masukTime).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : null;
-    const keluarStr = record.keluarTime ? new Date(record.keluarTime).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : null;
-
-    if (!record.masukTime) {
-        body.innerHTML = `
-            <div class="bg-slate-50 rounded-2xl p-5 text-center mb-4">
-                <i data-lucide="clock" class="w-6 h-6 text-slate-300 mx-auto mb-2"></i>
-                <p class="text-sm text-slate-500 font-semibold">Belum absen masuk hari ini</p>
-            </div>
-            <button onclick="recordAttendanceManual('masuk')" class="w-full bg-emerald-500 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2">
-                <i data-lucide="log-in" class="w-5 h-5"></i> Absen Masuk
-            </button>`;
-    } else if (!record.keluarTime) {
-        body.innerHTML = `
-            <div class="flex items-center justify-between bg-emerald-50 rounded-2xl p-4">
-                <div>
-                    <p class="text-[10px] text-emerald-600 font-bold uppercase">Jam Masuk${record.masukBy ? ` - ${record.masukBy}` : ''}</p>
-                    <p class="text-2xl font-black text-emerald-700">${masukStr}</p>
-                </div>
-                <button onclick="recordAttendanceManual('keluar')" class="bg-orange-500 text-white px-5 py-3.5 rounded-xl font-bold flex items-center gap-2 shrink-0">
-                    <i data-lucide="log-out" class="w-4 h-4"></i> Keluar
-                </button>
-            </div>`;
-    } else {
-        body.innerHTML = `
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-emerald-50 rounded-2xl p-4 text-center">
-                    <p class="text-[10px] text-emerald-600 font-bold uppercase">Masuk${record.masukBy ? ` - ${record.masukBy}` : ''}</p>
-                    <p class="text-lg font-black text-emerald-700">${masukStr}</p>
-                </div>
-                <div class="bg-orange-50 rounded-2xl p-4 text-center">
-                    <p class="text-[10px] text-orange-600 font-bold uppercase">Pulang${record.keluarBy ? ` - ${record.keluarBy}` : ''}</p>
-                    <p class="text-lg font-black text-orange-700">${keluarStr}</p>
-                </div>
-            </div>
-            <p class="text-center text-xs text-slate-400 font-semibold mt-4">Absensi hari ini sudah lengkap ✓</p>`;
-    }
-    lucide.createIcons();
-}
-
-// --- RIWAYAT ABSEN (per karyawan — menu terpisah, di bawah Generate QR Absen) ---
-function renderRiwayatAbsenEmployeeSelect() {
-    const select = document.getElementById('riwayat-absen-employee-select');
-    if (!select) return;
-    const prevValue = select.value;
-    select.innerHTML = employeesCache.map(e => `<option value="${e.id}">${e.name}</option>`).join('') || '<option value="">Belum ada karyawan</option>';
-    if (Array.from(select.options).some(o => o.value === prevValue)) select.value = prevValue;
-    renderRiwayatAbsen();
-}
-
-// Ambil riwayat absen milik satu karyawan, urut terbaru dulu. `monthFilter` opsional ('YYYY-MM')
-// buat filter satu bulan penuh (dipakai saat export PDF); kalau dikosongkan, ambil semua lalu
-// caller yang batasi (dipakai buat tampilan 7 hari terakhir).
-function getRiwayatAbsenForEmployee(empId, monthFilter) {
-    return attendanceLogCache
-        .filter(r => r.masukById === empId && (!monthFilter || r.date.startsWith(monthFilter)))
-        .sort((a, b) => b.date.localeCompare(a.date));
-}
-
-function renderRiwayatAbsen() {
-    const body = document.getElementById('riwayat-absen-body');
-    const select = document.getElementById('riwayat-absen-employee-select');
-    if (!body || !select) return;
-    const empId = select.value;
-    const records = empId ? getRiwayatAbsenForEmployee(empId).slice(0, 7) : []; // 7 hari terakhir
-
-    body.innerHTML = records.map(r => {
-        const dateObj = new Date(r.date + 'T00:00:00');
-        const hari = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
-        const tanggalFormatted = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-        const masukStr = r.masukTime ? new Date(r.masukTime).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
-        const keluarStr = r.keluarTime ? new Date(r.keluarTime).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
-        return `
-        <tr class="border-b border-slate-50">
-            <td class="p-3 font-semibold text-slate-700">${hari}</td>
-            <td class="p-3 text-slate-500">${tanggalFormatted}</td>
-            <td class="p-3 text-emerald-600 font-bold">${masukStr}</td>
-            <td class="p-3 text-orange-600 font-bold">${keluarStr}</td>
-        </tr>`;
-    }).join('') || `<tr><td colspan="4" class="text-center p-6 text-slate-400 text-xs">${empId ? 'Belum ada riwayat absen' : 'Pilih karyawan dulu'}</td></tr>`;
-}
-
-function downloadRiwayatAbsenPDF() {
-    const select = document.getElementById('riwayat-absen-employee-select');
-    const monthInput = document.getElementById('riwayat-absen-month');
-    const empId = select ? select.value : '';
-    if (!empId) return alert('Pilih karyawan dulu!');
-
-    const emp = employeesCache.find(e => e.id === empId);
-    const monthVal = (monthInput && monthInput.value) ? monthInput.value : getTodayDateStr().slice(0, 7); // 'YYYY-MM'
-    const records = getRiwayatAbsenForEmployee(empId, monthVal).sort((a, b) => a.date.localeCompare(b.date));
-
-    if (records.length === 0) {
-        return alert('Tidak ada data absen di bulan tersebut untuk karyawan ini.');
-    }
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const monthLabel = new Date(`${monthVal}-01T00:00:00`).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
-    doc.text(`Riwayat Absen - ${emp ? emp.name : ''} - ${monthLabel}`, 10, 10);
-
-    const data = records.map(r => {
-        const dateObj = new Date(r.date + 'T00:00:00');
-        const hari = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
-        const tgl = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-        const masukStr = r.masukTime ? new Date(r.masukTime).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
-        const keluarStr = r.keluarTime ? new Date(r.keluarTime).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
-        return [hari, tgl, masukStr, keluarStr];
-    });
-
-    doc.autoTable({ head: [['Hari', 'Tanggal', 'Jam Masuk', 'Jam Keluar']], body: data, startY: 18 });
-    doc.save(`Absen-${(emp ? emp.name : 'Karyawan').replace(/\s+/g, '_')}-${monthVal}.pdf`);
-}
-
-// --- LAPORAN SALES HARI INI (dari kotak di panel Menu Utama) ---
-function isSameDay(dateA, dateB) {
-    return dateA.getFullYear() === dateB.getFullYear() &&
-        dateA.getMonth() === dateB.getMonth() &&
-        dateA.getDate() === dateB.getDate();
-}
-
-function getTodaysOrders() {
-    const today = new Date();
-    return orderHistory.filter(o => {
-        const ts = o.timestamp ? new Date(o.timestamp) : null;
-        return ts && !isNaN(ts) && isSameDay(ts, today);
-    }).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // terbaru di atas
-}
-
-function openSalesReport() {
-    renderSalesReport();
-    document.getElementById('modal-sales-report').classList.remove('hidden');
-    lucide.createIcons();
-}
-
-function closeSalesReport() {
-    document.getElementById('modal-sales-report').classList.add('hidden');
-}
-
-function renderSalesReport() {
-    const todaysOrders = getTodaysOrders();
-    const total = todaysOrders.reduce((sum, o) => sum + o.total, 0);
-
-    document.getElementById('sales-report-date').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-    document.getElementById('sales-report-total').innerText = `Rp ${total.toLocaleString()}`;
-    document.getElementById('sales-report-count').innerText = todaysOrders.length;
-
-    const body = document.getElementById('sales-report-body');
-    body.innerHTML = todaysOrders.map(o => {
-        const time = new Date(o.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-        const itemText = o.items.map(i => `${i.name} x${i.qty}`).join(', ');
-        return `
-        <tr class="border-b border-slate-100">
-            <td class="p-3 align-top font-semibold text-slate-500 whitespace-nowrap">${time}</td>
-            <td class="p-3 align-top text-slate-800">${itemText}</td>
-            <td class="p-3 align-top">
-                <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px] font-bold">${o.method}</span>
-            </td>
-            <td class="p-3 align-top text-right font-bold text-blue-600 whitespace-nowrap">Rp ${o.total.toLocaleString()}</td>
-        </tr>`;
-    }).join('') || `<tr><td colspan="4" class="text-center p-8 text-slate-400 text-xs">Belum ada transaksi hari ini</td></tr>`;
-}
-
-// Jeda konfirmasi: tampilkan modal "Yakin lanjut?" sebelum benar-benar memproses pesanan
-function askConfirmOrder() {
-    document.getElementById('modal-confirm-order').classList.remove('hidden');
-    lucide.createIcons();
-}
-
-function cancelConfirmOrder() {
-    document.getElementById('modal-confirm-order').classList.add('hidden');
-}
-
-function processOrder() {
-    document.getElementById('modal-confirm-order').classList.add('hidden');
-
-    const now = new Date();
-    // ID struk berbasis waktu (bukan counter manual) supaya tidak pernah tabrakan
-    // walau ada beberapa HP kasir membuat transaksi di saat yang hampir bersamaan.
-    const receiptID = now.toISOString().replace(/[-:T.]/g, '').slice(2, 14) + Math.floor(Math.random() * 90 + 10);
-
-    lastOrder = {
-        id: receiptID,
-        date: now.toLocaleString('id-ID'),
-        timestamp: now.toISOString(), // dipakai untuk filter laporan "Sales Hari Ini" secara akurat
-        total: cart.reduce((sum, item) => sum + (item.price * item.qty), 0),
-        method: selectedPayment,
-        items: JSON.parse(JSON.stringify(cart)),
-        employeeId: currentSessionEmployeeId, // identitas kasir yang lagi login PIN sesi ini
-        employeeName: currentSessionEmployeeName
-    };
-
-    saveOrderToFirestore(lastOrder);
-    decreaseStockForOrder(lastOrder.items, getCurrentKasirEmployeeId());
-    updateConnectionUI();
-
-    document.getElementById('modal-checkout').classList.add('hidden');
-    document.getElementById('modal-success').classList.remove('hidden');
-    lucide.createIcons();
-}
-
-// Simpan transaksi ke koleksi 'sales' di Firestore. Tabel riwayat & laporan penjualan
-// otomatis ke-update lewat onSnapshot listener di initFirestoreSync (tidak perlu push manual
-// ke array orderHistory di sini, supaya tidak dobel begitu listener-nya jalan).
-function saveOrderToFirestore(order) {
-    if (!window.FB || !window.FB.ready) {
-        showToast('Belum terhubung ke database, transaksi akan otomatis tersimpan begitu koneksi ke server aktif.', 'warn');
-        return;
-    }
-    const { db, collection, addDoc } = window.FB;
-    addDoc(collection(db, 'sales'), order).catch((err) => {
-        console.error('Gagal menyimpan transaksi:', err);
-        showToast('Gagal menyimpan transaksi ke server.', 'warn');
-    });
-}
-
-function finishTransaction() {
-    cart = [];
-    lastOrder = null;
-    updateCartUI();
-    document.getElementById('modal-success').classList.add('hidden');
-    // Kembali ke kategori "Makanan" kalau memang ada & tampil buat kasir ini; kalau tidak
-    // (misal katalog kasir ini tidak termasuk kategori itu), pakai kategori pertama yang tampil.
-    const visibleCategories = getVisibleCategoriesForCurrentKasir();
-    filterCategory(visibleCategories.includes('Makanan') ? 'Makanan' : (visibleCategories[0] || ''));
-}
-
-// --- PRINT & LOGIN ---
-function openLoginModal() { document.getElementById('modal-login').classList.remove('hidden'); }
-function closeLoginModal() { document.getElementById('modal-login').classList.add('hidden'); }
-function checkLogin() {
-    if (document.getElementById('login-user').value === ADMIN_USER && document.getElementById('login-pass').value === ADMIN_PASS) {
-        closeLoginModal(); showPage('admin');
-    } else { alert("Akses Ditolak!"); }
-}
-function showPage(page) {
-    document.getElementById('page-home').classList.toggle('hidden', page !== 'home');
-    document.getElementById('bottom-bar').classList.toggle('hidden', page !== 'home');
-    document.getElementById('page-admin').classList.toggle('hidden', page !== 'admin');
-
-    const enteringAdmin = page === 'admin';
-    adminPanelOpen = enteringAdmin;
-
-    if (enteringAdmin) {
-        // Admin Panel harus selalu bisa diakses & terlihat penuh, kapan pun — termasuk saat
-        // kasir sedang dalam kondisi terkunci (absen keluar / wajib absen masuk / jendela absen
-        // pulang). Sembunyikan dulu layar kunci kasir yang mungkin masih aktif di baliknya.
-        forceHideKasirLockScreens();
-        renderAdminTools();
-        loadAttendanceSettingsToForm();
-    } else {
-        // Balik ke halaman Kasir — munculkan lagi layar kunci kasir kalau kondisinya masih berlaku.
-        restoreKasirLockScreensIfNeeded();
-    }
-    lucide.createIcons();
-}
-
-// Sembunyikan SECARA VISUAL SAJA overlay/gate/popup kunci kasir (tanpa mengubah flag state-nya),
-// dipanggil setiap kali Admin Panel dibuka supaya tidak pernah ketutup layar kunci kasir.
-function forceHideKasirLockScreens() {
-    const overlay = document.getElementById('attendance-overlay');
-    overlay.classList.add('hidden');
-    overlay.classList.remove('flex');
-
-    const gate = document.getElementById('shift-ended-gate');
-    gate.classList.add('hidden');
-    gate.classList.remove('flex');
-
-    const popup = document.getElementById('modal-absen-popup');
-    if (popup) {
-        popup.classList.add('hidden');
-        popup.classList.remove('flex');
-    }
-
-    const pinLock = document.getElementById('pin-lock-screen');
-    if (pinLock) {
-        pinLock.classList.add('hidden');
-        pinLock.classList.remove('flex');
-    }
-}
-
-// Dipanggil saat keluar dari Admin Panel (kembali ke halaman Kasir) — cek flag state yang
-// sudah dihitung di balik layar tadi, lalu munculkan lagi layar kunci yang sesuai kalau masih berlaku.
-function restoreKasirLockScreensIfNeeded() {
-    // Identitas sesi kasir (PIN) diverifikasi PALING DULUAN, sebelum layar kunci lain — supaya
-    // Admin yang masuk lewat header (tanpa lewat PIN) tetap diminta login PIN begitu kembali ke Kasir.
-    if (!pinLockResolved) {
-        tryShowPinLock();
-        return;
-    }
-    if (shiftEndedActive) {
-        const gate = document.getElementById('shift-ended-gate');
-        gate.classList.remove('hidden');
-        gate.classList.add('flex');
-        return; // shift selesai = POS tertutup total, gate lain tidak relevan lagi
-    }
-    if (attendanceOverlayShownType) {
-        const overlay = document.getElementById('attendance-overlay');
-        overlay.classList.remove('hidden');
-        overlay.classList.add('flex');
-    }
-    if (mandatoryMasukGateActive) {
-        openAbsenPopup(true); // adminPanelOpen sudah false di titik ini, jadi popup beneran muncul
-    }
-}
-
-function sendWhatsApp() {
-    if (!lastOrder) return;
-    let phone = document.getElementById('wa-number').value.replace(/[^0-9]/g, "");
-    if (phone.startsWith("0")) phone = "62" + phone.slice(1);
-    let text = `*STRUK ${STORE_NAME}*%0A------------------%0A`;
-    lastOrder.items.forEach(i => {
-        text += `${i.name} x${i.qty} = ${i.price * i.qty}%0A`;
-        if (i.variantSelections) {
-            text += i.variantSelections.map(v => `  - ${v.name} x${v.qty}`).join('%0A') + '%0A';
-        }
-    });
-    text += `------------------%0A*TOTAL: Rp ${lastOrder.total}*`;
-    window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
-}
-
-// Cetak struk PDF dengan garis pemisah (dashed) agar terlihat rapi seperti struk kasir asli
-function printReceipt() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit: 'mm', format: [80, 150] });
-    const pageWidth = 80;
-    const marginX = 5;
-    const rightX = pageWidth - marginX;
-
-    const drawDashedLine = (y) => {
-        doc.setLineDashPattern([1, 1], 0);
-        doc.setDrawColor(120, 120, 120);
-        doc.line(marginX, y, rightX, y);
-        doc.setLineDashPattern([], 0);
-    };
-
-    // HEADER
-    doc.setFontSize(13).setFont(undefined, 'bold');
-    doc.text(STORE_NAME, pageWidth / 2, 10, { align: "center" });
-    doc.setFontSize(7).setFont(undefined, 'normal');
-    doc.text("Digital Point of Sales", pageWidth / 2, 15, { align: "center" });
-
-    let y = 20;
-    drawDashedLine(y);
-    y += 5;
-
-    doc.setFontSize(8);
-    doc.text(`No: ${lastOrder.id}`, marginX, y);
-    doc.text(`${lastOrder.date}`, rightX, y, { align: "right" });
-    y += 4;
-    doc.text(`Metode: ${lastOrder.method}`, marginX, y);
-    y += 3;
-
-    drawDashedLine(y);
-    y += 6;
-
-    // ITEMS
-    lastOrder.items.forEach(i => {
-        doc.setFont(undefined, 'normal').setFontSize(8);
-        doc.text(`${i.name} x${i.qty}`, marginX, y);
-        doc.text(`${(i.price * i.qty).toLocaleString()}`, rightX, y, { align: "right" });
-        y += 5;
-        if (i.variantSelections) {
-            doc.setFontSize(6.5);
-            i.variantSelections.forEach(v => {
-                doc.text(`- ${v.name} x${v.qty}`, marginX + 2, y);
-                y += 3.5;
-            });
-        }
-        y += 2;
-    });
-
-    drawDashedLine(y);
-    y += 6;
-
-    // TOTAL
-    doc.setFontSize(10).setFont(undefined, 'bold');
-    doc.text(`TOTAL`, marginX, y);
-    doc.text(`Rp ${lastOrder.total.toLocaleString()}`, rightX, y, { align: "right" });
-    y += 4;
-
-    drawDashedLine(y);
-    y += 6;
-
-    // FOOTER
-    doc.setFontSize(7).setFont(undefined, 'normal');
-    doc.text("Terima kasih telah berbelanja!", pageWidth / 2, y, { align: "center" });
-
-    doc.save(`Struk-${lastOrder.id}.pdf`);
-}
-
-function downloadPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const filtered = getFilteredOrderHistory(); // ikut filter karyawan/tanggal yang lagi aktif di Total Transaksi
-    doc.text("History Transaksi OKTSHOP17", 10, 10);
-    const data = filtered.map(o => [o.id, o.date, o.employeeName || '-', o.method, o.total]);
-    doc.autoTable({ head: [['No', 'Tgl', 'Kasir', 'Metode', 'Total']], body: data });
-    doc.save("History-Penjualan.pdf");
-}
-
-init();
+    // Kalau overlay absen pulang sedang tampil untuk sesi yan
