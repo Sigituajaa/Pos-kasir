@@ -2375,7 +2375,7 @@ function processOrder() {
 // karena ini dipicu langsung dari tap tombol user), errornya cukup di-log saja, tidak mengganggu transaksi.
 function playPaymentSuccessSound() {
     try {
-        const audio = new Audio('https://www.image2url.com/r2/default/audio/1788086449704-7aeb50a9-1696-4240-b2c4-7d20c8efe978.mp3');
+        const audio = new Audio('https://www.image2url.com/r2/default/audio/1788174268372-6107ba19-18b9-4c0a-ba75-f1b35c5472db.mp3');
         audio.play().catch(err => console.warn('Gagal memutar suara pembayaran berhasil:', err));
     } catch (err) {
         console.warn('Gagal memutar suara pembayaran berhasil:', err);
