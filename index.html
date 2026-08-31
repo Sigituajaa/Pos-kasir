@@ -76,7 +76,7 @@
                 <span class="hidden md:inline text-sm">Admin Panel</span>
             </button>
             <div class="text-center">
-                <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">OKTSHOP17</h1>
+                <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">Cireng I'm Suwer</h1>
                 <p class="text-[10px] font-bold text-blue-600 tracking-[0.2em] uppercase">Digital Point of Sales</p>
             </div>
             <div class="w-40 md:w-44 flex justify-end items-center gap-1">
@@ -295,14 +295,10 @@
                             <select id="report-filter-employee" onchange="applyTotalPenjualanFilter()" class="p-2.5 border border-slate-200 rounded-xl bg-slate-50 text-xs font-semibold"></select>
                             <input id="report-filter-month" type="month" onchange="applyTotalPenjualanFilter()" class="p-2.5 border border-slate-200 rounded-xl bg-slate-50 text-xs font-semibold">
                         </div>
-                        <button onclick="resetTotalPenjualanFilter()" class="text-[10px] font-bold text-blue-600 mb-3">Reset Filter</button>
-                        <div class="p-6 bg-emerald-50 rounded-2xl text-center mb-4">
-                            <span id="today-count" class="text-4xl font-black text-emerald-800">0</span>
-                            <p class="text-xs font-bold text-emerald-600 uppercase mt-1">Selesai</p>
-                            <p id="report-filter-total-rupiah" class="text-sm font-bold text-emerald-700 mt-2">Rp 0</p>
-                        </div>
+                        <button onclick="resetTotalPenjualanFilter()" class="text-[10px] font-bold text-blue-600 mb-4">Reset Filter</button>
 
-                        <!-- TABEL RINCIAN HARIAN (1 bulan penuh, per tanggal & per user) -->
+                        <!-- TABEL RINCIAN HARIAN (1 bulan penuh, per tanggal & per user, urut kronologis).
+                             Baris TOTAL (Sales+Qty+Avg digabung) otomatis ada di paling bawah tabel. -->
                         <div class="overflow-x-auto mb-4">
                             <table class="w-full text-xs">
                                 <thead class="bg-slate-50 text-slate-500 uppercase text-[10px]">
